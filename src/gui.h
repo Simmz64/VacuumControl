@@ -15,7 +15,12 @@
 void drawScreen(void);
 void drawMainScreen(uint16_t color);
 void drawQuestionScreen(uint16_t color);
+void drawQChamberScreen(uint16_t color);
+void drawQPrepumpScreen(uint16_t color);
+void drawQCryoScreen(uint16_t color);
+void clean(void);
 void buttons(uint16_t xp, uint16_t yp);
+
 /*******************************/
 
 #define CHAMBER_X 80
@@ -33,6 +38,21 @@ void buttons(uint16_t xp, uint16_t yp);
 #define CRYO_Y 160
 #define CRYO_W 50
 #define CRYO_H 25
+
+#define PIPE_W 5
+
+#define VALVE_W 15
+
+#define OPT1_X0 20
+#define OPT1_X1 160
+#define OPT1_Y0 170
+#define OPT1_Y1 220
+
+#define OPT2_X0 160
+#define OPT2_X1 300
+#define OPT2_Y0 170
+#define OPT2_Y1 220
+
 
 extern volatile enum states state;
 

@@ -91,7 +91,7 @@ void testTouch(void) {
 
 void testGUI(void) {
    uint16_t xpos = 0, ypos = 0, z = 0;
-   uint8_t redraw = 1;
+   uint8_t redraw = 1, pressed = 0;
 
    while(1) {
       
@@ -102,18 +102,23 @@ void testGUI(void) {
 
       z = readZ();
 
-      if(z > 500) {
+      if(z > 500 && !pressed) {
          xpos = readX();
          ypos = readY();
          redraw = 1;
+         pressed = 1;
          buttons(xpos - 512, ypos - 512);
       } else {
          xpos = 0;
          ypos = 0;
       }
 
+      if(z < 200) {
+         pressed = 0;
+      }
 
-      _delay_ms(100);
+
+      _delay_ms(1);
    }
 }
 

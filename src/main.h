@@ -22,7 +22,9 @@ void testGUI(void);
 
 enum states {
 	MAIN,
-	QUESTION
+	Q_CHAMBER,
+	Q_PREPUMP,
+	Q_CRYO
 };
 
 #endif

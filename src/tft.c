@@ -402,6 +402,32 @@ void drawTestUI(void) {
 
 }
 
+void drawValve(uint16_t xp, uint16_t yp, uint16_t color, uint8_t status) {
+	// Draws a valve symbol at xp, and yp positiong
+	// If status is 0, the valve is drawn closed (filled in), else open
+	drawHLine(xp - VALVE_W, xp + VALVE_W, yp, color);
+	uint8_t i;
+
+	for(i = VALVE_W; i > 0; i--) {
+		drawVLine(xp - i, yp-i, yp+i, color);
+	}
+
+	for(i = 0; i < VALVE_W; i++) {
+		drawVLine(xp + i + 1, yp-i, yp+i, color);
+	}
+
+	if(status) {
+		for(i = VALVE_W-1; i > 0; i--) {
+			drawVLine(xp - i, yp-i+1, yp+i-1, COLOR_BG);
+		}
+
+		for(i = 0; i < VALVE_W-1; i++) {
+			drawVLine(xp + i + 1, yp-i+1, yp+i-1, COLOR_BG);
+		}
+	}
+}
+
+
 void printToBox(uint16_t xbox, uint16_t ybox, uint16_t num) {
 	printNum(xbox+19, ybox+42, num, 0x0000);
 }
