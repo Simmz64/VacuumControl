@@ -1,0 +1,28 @@
+#ifndef MAIN_H
+#define MAIN_H
+
+#define  F_CPU 12000000UL
+
+#include <avr/io.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <avr/interrupt.h>
+#include <util/delay.h>
+#include "tft.h"
+#include "touch.h"
+#include "gui.h"
+
+/***** Function prototypes *****/
+void init(void);
+void blinkLED(void);
+void testTouch(void);
+void testGUI(void);
+/*******************************/
+
+enum states {
+	MAIN,
+	QUESTION
+};
+
+#endif
