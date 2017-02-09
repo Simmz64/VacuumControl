@@ -18,6 +18,8 @@ void drawQuestionScreen(uint16_t color);
 void drawQChamberScreen(uint16_t color);
 void drawQPrepumpScreen(uint16_t color);
 void drawQCryoScreen(uint16_t color);
+void drawQPrepumpPipeScreen(uint16_t color);
+void drawQCryoPipeScreen(uint16_t color);
 void clean(void);
 void buttons(uint16_t xp, uint16_t yp);
 
@@ -55,5 +57,7 @@ void buttons(uint16_t xp, uint16_t yp);
 
 
 extern volatile enum states state;
+extern volatile uint8_t prepumpPipe;
+extern volatile uint8_t cryoPipe;
 
 #endif
