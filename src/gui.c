@@ -102,7 +102,7 @@ void drawQChamberScreen(uint16_t color) {
 	printStr(((OPT1_X0+OPT1_X1)>>1) - (offset>>1), ((OPT1_Y0+OPT1_Y1)>>1) - (FONT_SY>>1), s2, len, color);
 
 	drawRect(OPT2_X0, OPT2_Y0, OPT2_X1, OPT2_Y1, color);
-	s2 = "Disco";
+	s2 = "Test";
 	len = strlen(s2);
 	offset = len*FONT_SX;
 	printStr(((OPT2_X0+OPT2_X1)>>1) - (offset>>1), ((OPT2_Y0+OPT2_Y1)>>1) - (FONT_SY>>1), s2, len, color); 
@@ -136,7 +136,7 @@ void drawQPrepumpPipeScreen(uint16_t color) {
 	if(prepumpPipe) {
 		s2 = "Close valve";
 	} else {
-		s2 = "Open valve";
+		s2 = " Open valve ";
 	}
 	len = strlen(s2);
 	offset = len*FONT_SX;
@@ -259,8 +259,6 @@ void buttons(uint16_t xp, uint16_t yp) {
 					}
 				}
 			}
-			clean();
-			state = MAIN;
 			break;
 		case Q_CRYOPIPE:
 			clean();
