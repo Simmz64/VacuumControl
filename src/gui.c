@@ -19,7 +19,8 @@ void drawScreen(void) {
 			drawQChamberScreen(COLOR_FG);
 			break;
 		case Q_PREPUMP:
-			drawQPrepumpScreen(COLOR_FG);
+			//drawQPrepumpScreen(COLOR_FG);
+			drawNumericsScreen(COLOR_FG);
 			break;
 		case Q_CRYO:
 			drawQCryoScreen(COLOR_FG);
@@ -199,6 +200,7 @@ void clean(void) {
 
 // Checks whether a button is pressed at xp and yp
 void buttons(uint16_t xp, uint16_t yp) {
+	uint8_t num, pos = 20;
 	//Check chamber
 	switch(state) {
 		case MAIN:
@@ -256,7 +258,10 @@ void buttons(uint16_t xp, uint16_t yp) {
 
 
 		case Q_PREPUMP:
-			checkBackButton(xp, yp);
+			num = checkNumerics(xp, yp);
+			printNum(pos, 20, num, COLOR_G);
+			pos += 8;
+
 			break;
 
 
@@ -326,4 +331,179 @@ uint8_t checkOptionButton(uint16_t xp, uint16_t yp) {
 
 	return 0;
 
+}
+
+
+// Function for drawing the numerics input screen
+void drawNumericsScreen(uint16_t color) {
+	uint8_t i,j;
+
+	// Draw the buttons
+	for(i = 0; i < 3; i++) {
+		for(j = 0; j < 3; j++) {
+			drawRect(NUM_BTN_EDGEX + i*(NUM_BTN_W + NUM_BTN_SPC), NUM_BTN_EDGEY + j*(NUM_BTN_W + NUM_BTN_SPC), 
+				NUM_BTN_EDGEX + i*(NUM_BTN_W + NUM_BTN_SPC) + NUM_BTN_W, NUM_BTN_EDGEY + j*(NUM_BTN_W + NUM_BTN_SPC) + NUM_BTN_W, color);
+		}
+	}
+
+	char* s = "0";
+	// Print numbers 1 - 9
+	for(i = 0; i < 3; i++) {
+		for(j = 0; j < 3; j++) {
+			utoa((j+1) + (i*3), s,10);
+			printStr(NUM_BTN_EDGEX + j*(NUM_BTN_W + NUM_BTN_SPC) + (NUM_BTN_W>>1) - 4, NUM_BTN_EDGEY + i*(NUM_BTN_W + NUM_BTN_SPC) + (NUM_BTN_W>>1) - 4,
+				s, 1, color);
+		}
+	}
+}
+
+// Function for recognizing when a numeric button is pressed on the numerics interface
+uint8_t checkNumerics(uint16_t xp, uint16_t yp) {
+	if(xp < (NUM_BTN_EDGEX + NUM_BTN_W + NUM_BTN_SPC + (NUM_BTN_W>>1))) {
+		// Is in left half of numerics (1)
+		
+		if(yp < (NUM_BTN_EDGEY + NUM_BTN_W + NUM_BTN_SPC + (NUM_BTN_W>>1))) {
+			// Is in upper left quadrant (2)
+			
+			if(xp < (NUM_BTN_EDGEX + NUM_BTN_W + (NUM_BTN_SPC>>1))) {
+				// Is in left part of upper left quadrant (3)
+
+				if(yp < (NUM_BTN_EDGEY + NUM_BTN_W + (NUM_BTN_SPC >> 1))) {
+					// Pressing button 1
+					return 1;
+				} else {
+					// Pressing upper part of button 4
+					return 4;
+				}
+
+			} else {
+				// Is in right part of upper left quadrant (3)
+
+				if(yp < (NUM_BTN_EDGEY + NUM_BTN_W + (NUM_BTN_SPC >> 1))) {
+					// Pressing left part of button 2
+					return 2;
+				} else {
+					// Pressing upper left part of button 5
+					return 5;
+				}
+			}
+
+		} else {
+			// Is in lower left quadrant (2)
+
+			if(xp < (NUM_BTN_EDGEX + NUM_BTN_W + (NUM_BTN_SPC>>1))) {
+				// Is in left part of lower left quadrant (3)
+
+				if(yp < (NUM_BTN_EDGEY + NUM_BTN_W*2 + NUM_BTN_SPC + (NUM_BTN_SPC >> 1))) {
+					// Pressing lower part of button 4
+					return 4;
+				} else {
+					// Pressing button 7
+					return 7;
+				}
+
+			} else {
+				// Is in right part of lower left quadrant (3)
+
+				if(yp < (NUM_BTN_EDGEY + NUM_BTN_W*2 + NUM_BTN_SPC + (NUM_BTN_SPC >> 1))) {
+					// Pressing lower left part of button 5
+					return 5;
+				} else {
+					// Pressing left part of button 8
+					return 8;
+				}
+
+			}
+
+		}
+
+
+	} else {
+		// Is in right half of numerics (1)
+
+		if(yp < (NUM_BTN_EDGEY + NUM_BTN_W + NUM_BTN_SPC + (NUM_BTN_W>>1))) {
+			// Is in upper right quadrant (2)
+
+			if(xp < (NUM_BTN_EDGEX + NUM_BTN_W*2 + NUM_BTN_SPC + (NUM_BTN_SPC>>1))) {
+				// Is in left part of upper right quadrant (3)
+
+				if(yp < (NUM_BTN_EDGEY + NUM_BTN_W + (NUM_BTN_SPC >> 1))) {
+					// Pressing right part of button 2
+					return 2;
+				} else {
+					// Pressing upper right part of button 5 
+					return 5;
+				}
+
+			} else {
+				// Is in right part of upper right quadrant (3)
+
+				if(yp < (NUM_BTN_EDGEY + NUM_BTN_W + (NUM_BTN_SPC >> 1))) {
+					// Is in upper right part of upper right quadrant (4)
+
+					if(xp < (NUM_BTN_EDGEX + NUM_BTN_W*3 + NUM_BTN_SPC*2 + (NUM_BTN_SPC>>1))) {
+						// Pressing button 3 (5)
+						return 3;
+					} else {
+						// Pressing button 0
+						return 0;
+					}
+					
+				} else {
+					// Is in lower right part of upper right quadrant(4) 
+					if(xp < (NUM_BTN_EDGEX + NUM_BTN_W*3 + NUM_BTN_SPC*2 + (NUM_BTN_SPC>>1))) {
+						// Pressing upper part of button 6 (5)
+						return 6;
+					} else {
+						// TODO Pressing upper part of button clear
+						return 0;
+					}
+				}
+
+			}
+
+		} else {
+			// Is in lower right quadrant (2)
+
+			if(xp < (NUM_BTN_EDGEX + NUM_BTN_W*2 + NUM_BTN_SPC + (NUM_BTN_SPC>>1))) {
+				// Is in left part of lower right quadrant (3)
+
+				if(yp < (NUM_BTN_EDGEY + NUM_BTN_W*2 + NUM_BTN_SPC + (NUM_BTN_SPC >> 1))) {
+					// Pressing lower right part of button 5
+					return 5;
+				} else {
+					// Pressing right part of button 8
+					return 8;
+				}
+
+			} else {
+				// Is in right part of lower right quadrant (3)
+
+				if(yp < (NUM_BTN_EDGEY + NUM_BTN_W*2 + NUM_BTN_SPC + (NUM_BTN_SPC >> 1))) {
+					// Is in upper right part of lower right quadrant (4)
+
+					if(xp < (NUM_BTN_EDGEX + NUM_BTN_W*3 + NUM_BTN_SPC*2 + (NUM_BTN_SPC>>1))) {
+						// Pressing lower part of button 6
+						return 6;
+					} else {
+						// TODO Pressing lower part of clear button
+						return 0;
+					}
+
+				} else {
+					// Is in lower right part of lower right quadrant (4)
+					
+					if(xp < (NUM_BTN_EDGEX + NUM_BTN_W*3 + NUM_BTN_SPC*2 + (NUM_BTN_SPC>>1))) {
+						// Pressing button 9
+						return 9;
+					} else {
+						// TODO Pressing confirm button
+						return 0;
+					}
+				}
+
+			}
+		}
+
+	}
 }

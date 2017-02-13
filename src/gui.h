@@ -26,6 +26,8 @@ void drawBackButton(uint16_t color);
 void checkBackButton(uint16_t xp, uint16_t yp);
 void drawOptionButton(char* text, uint16_t color);
 uint8_t checkOptionButton(uint16_t xp, uint16_t yp);
+void drawNumericsScreen(uint16_t color);
+uint8_t checkNumerics(uint16_t xp, uint16_t yp);
 
 /*******************************/
 
@@ -59,6 +61,11 @@ uint8_t checkOptionButton(uint16_t xp, uint16_t yp);
 #define OPT2_X1 300
 #define OPT2_Y0 170
 #define OPT2_Y1 220
+
+#define NUM_BTN_W 50
+#define NUM_BTN_SPC 10
+#define NUM_BTN_EDGEX 20
+#define NUM_BTN_EDGEY 50
 
 
 extern volatile enum states state;
