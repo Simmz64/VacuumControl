@@ -12,6 +12,7 @@
 #include "tft.h"
 #include "touch.h"
 #include "gui.h"
+#include "pid.h"
 
 /***** Function prototypes *****/
 void init(void);

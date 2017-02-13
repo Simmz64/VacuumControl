@@ -22,6 +22,10 @@ void drawQPrepumpPipeScreen(uint16_t color);
 void drawQCryoPipeScreen(uint16_t color);
 void clean(void);
 void buttons(uint16_t xp, uint16_t yp);
+void drawBackButton(uint16_t color);
+void checkBackButton(uint16_t xp, uint16_t yp);
+void drawOptionButton(char* text, uint16_t color);
+uint8_t checkOptionButton(uint16_t xp, uint16_t yp);
 
 /*******************************/
 
@@ -42,6 +46,7 @@ void buttons(uint16_t xp, uint16_t yp);
 #define CRYO_H 25
 
 #define PIPE_W 5
+#define PIPE_BTN_EXTRA 10
 
 #define VALVE_W 15
 

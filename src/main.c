@@ -94,6 +94,9 @@ void testTouch(void) {
 void testGUI(void) {
    uint16_t xpos = 0, ypos = 0, z = 0;
    uint8_t redraw = 1, pressed = 0;
+   uint8_t i = 0, j = 0;
+
+
 
    while(1) {
       
@@ -119,6 +122,13 @@ void testGUI(void) {
          pressed = 0;
       }
 
+      pidWrite(i);
+      j++;
+      if(j == 12) {
+         j = 0;
+         i++;
+         i = i % 256;
+      }
 
       _delay_ms(1);
    }

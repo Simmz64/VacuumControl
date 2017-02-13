@@ -51,7 +51,7 @@ void drawMainScreen(uint16_t color) {
 
 	// Draw Prepump rectangle
 	drawRect(PREPUMP_X - PREPUMP_W, PREPUMP_Y - PREPUMP_H, PREPUMP_X + PREPUMP_W, PREPUMP_Y + PREPUMP_H, color);
-	printStr(PREPUMP_X - 3.5*8, PREPUMP_Y - 4, "Prepump", 7, color);
+	printStr(PREPUMP_X - 3.5*8, PREPUMP_Y - 4, "Prepump", 7, color2);
 
 	// Draw Cryopump rectangle
 	drawRect(CRYO_X - CRYO_W, CRYO_Y - CRYO_H, CRYO_X + CRYO_W, CRYO_Y + CRYO_H, color);
@@ -73,7 +73,13 @@ void drawMainScreen(uint16_t color) {
 	// Draw Chamber to Cryopump pipe
 	drawRect(CHAMBER_X - PIPE_W, CRYO_Y + PIPE_W, CHAMBER_X + PIPE_W, CHAMBER_Y + CHAMBER_H + CHAMBER_RIM, color);
 	drawRect(CHAMBER_X - PIPE_W, CRYO_Y - PIPE_W, CRYO_X - CRYO_W, CRYO_Y + PIPE_W, color);
-
+	if(cryoPipe) {
+		//Open
+		printStr(((3*CHAMBER_X + CRYO_X)>>2) - 16, CRYO_Y - 3, "Open", 4, color);
+	} else {
+		//Closed
+		printStr(((3*CHAMBER_X + CRYO_X)>>2) - 24, CRYO_Y - 3, "Closed", 6, color);
+	}
 	
 
 	// Draw Valves
@@ -95,16 +101,13 @@ void drawQChamberScreen(uint16_t color) {
 	printStr(40, 90, s, strlen(s), color);
 	
 	// Draw optionbox 1
-	drawRect(OPT1_X0, OPT1_Y0, OPT1_X1, OPT1_Y1, color);
-	char* s2 = "Back";
+	drawBackButton(color);
+
+	// Draw optionbox 2
+	drawRect(OPT2_X0, OPT2_Y0, OPT2_X1, OPT2_Y1, color);
+	char* s2 = "Test";
 	uint16_t len = strlen(s2);
 	uint16_t offset = len*FONT_SX;
-	printStr(((OPT1_X0+OPT1_X1)>>1) - (offset>>1), ((OPT1_Y0+OPT1_Y1)>>1) - (FONT_SY>>1), s2, len, color);
-
-	drawRect(OPT2_X0, OPT2_Y0, OPT2_X1, OPT2_Y1, color);
-	s2 = "Test";
-	len = strlen(s2);
-	offset = len*FONT_SX;
 	printStr(((OPT2_X0+OPT2_X1)>>1) - (offset>>1), ((OPT2_Y0+OPT2_Y1)>>1) - (FONT_SY>>1), s2, len, color); 
 
 }
@@ -112,13 +115,29 @@ void drawQChamberScreen(uint16_t color) {
 void drawQPrepumpScreen(uint16_t color) {
 	drawRect(20, 20, 300, 220, color);
 	char* s = "This is the Prepump screen";
-	printStr(40, 120, s, strlen(s), color);
+	printStr(40, 90, s, strlen(s), color);
+
+	// Draw optionbox 1
+	drawBackButton(color);
+
+	// Draw optionbox 2
+	drawRect(OPT2_X0, OPT2_Y0, OPT2_X1, OPT2_Y1, color);
+	char* s2 = "Test";
+	uint16_t len = strlen(s2);
+	uint16_t offset = len*FONT_SX;
+	printStr(((OPT2_X0+OPT2_X1)>>1) - (offset>>1), ((OPT2_Y0+OPT2_Y1)>>1) - (FONT_SY>>1), s2, len, color);
 }
 
 void drawQCryoScreen(uint16_t color) {
 	drawRect(20, 20, 300, 220, color);
 	char* s = "This is the Cryopump screen";
-	printStr(40, 120, s, strlen(s), color);
+	printStr(40, 90, s, strlen(s), color);
+
+	// Draw optionbox 1
+	drawBackButton(color);
+
+	// Draw optionbox 2
+	drawOptionButton("Test", color);
 }
 
 void drawQPrepumpPipeScreen(uint16_t color) {
@@ -126,27 +145,29 @@ void drawQPrepumpPipeScreen(uint16_t color) {
 	char* s = "This is the Prepump PIPE screen";
 	printStr(40, 120, s, strlen(s), color);
 
-	drawRect(OPT1_X0, OPT1_Y0, OPT1_X1, OPT1_Y1, color);
-	char* s2 = "Back";
-	uint16_t len = strlen(s2);
-	uint16_t offset = len*FONT_SX;
-	printStr(((OPT1_X0+OPT1_X1)>>1) - (offset>>1), ((OPT1_Y0+OPT1_Y1)>>1) - (FONT_SY>>1), s2, len, color);
+	drawBackButton(color);
 
-	drawRect(OPT2_X0, OPT2_Y0, OPT2_X1, OPT2_Y1, color);
 	if(prepumpPipe) {
-		s2 = "Close valve";
+		drawOptionButton("Close valve", color);
 	} else {
-		s2 = " Open valve ";
+		drawOptionButton(" Open valve ", color);
 	}
-	len = strlen(s2);
-	offset = len*FONT_SX;
-	printStr(((OPT2_X0+OPT2_X1)>>1) - (offset>>1), ((OPT2_Y0+OPT2_Y1)>>1) - (FONT_SY>>1), s2, len, color);
 }
 
 void drawQCryoPipeScreen(uint16_t color) {
 	drawRect(20, 20, 300, 220, color);
 	char* s = "This is the Cryo PIPE screen";
-	printStr(40, 120, s, strlen(s), color);
+	printStr(40, 90, s, strlen(s), color);
+
+	// Draw optionbox 1
+	drawBackButton(color);
+
+	// Draw optionbox 2
+	if(cryoPipe) {
+		drawOptionButton("Close valve", color);
+	} else {
+		drawOptionButton(" Open valve ", color);
+	}
 }
 
 void clean(void) {
@@ -181,6 +202,8 @@ void buttons(uint16_t xp, uint16_t yp) {
 	//Check chamber
 	switch(state) {
 		case MAIN:
+
+			// Press CHAMBER
 			if(xp < (CHAMBER_X + CHAMBER_W) && xp > (CHAMBER_X - CHAMBER_W)) {
 				if(yp < (CHAMBER_Y + CHAMBER_H) && yp > (CHAMBER_Y - CHAMBER_H)) {
 					clean();
@@ -188,6 +211,7 @@ void buttons(uint16_t xp, uint16_t yp) {
 				}
 			}
 
+			// Press PREPUMP
 			if(xp < (PREPUMP_X + PREPUMP_W) && xp > (PREPUMP_X - PREPUMP_W)) {
 				if(yp < (PREPUMP_Y + PREPUMP_H) && yp > (PREPUMP_Y - PREPUMP_H)) {
 					clean();
@@ -195,6 +219,7 @@ void buttons(uint16_t xp, uint16_t yp) {
 				}
 			}
 
+			// Press CRYOPUMP
 			if(xp < (CRYO_X + CRYO_W) && xp > (CRYO_X - CRYO_W)) {
 				if(yp < (CRYO_Y + CRYO_H) && yp > (CRYO_Y - CRYO_H)) {
 					clean();
@@ -202,70 +227,103 @@ void buttons(uint16_t xp, uint16_t yp) {
 				}
 			}
 
+			// Press PREPUMPPIPE
 			if(xp < (PREPUMP_X - PREPUMP_W) && xp > (CHAMBER_X - PIPE_W)) {
-				if(yp < (PREPUMP_Y + PIPE_W) && yp > (PREPUMP_Y - PIPE_W)) {
+				if(yp < (PREPUMP_Y + PIPE_W + PIPE_BTN_EXTRA) && yp > (PREPUMP_Y - PIPE_W - PIPE_BTN_EXTRA)) {
 					clean();
 					state = Q_PREPUMPPIPE;
 				}
 			}
 
-			// TODO CHAMBER_X - PIPE_W, CRYO_Y - PIPE_W, CRYO_X - CRYO_W, CRYO_Y + PIPE_W
+			// Press CRYOPIPE
 			if(xp < (CRYO_X - CRYO_W) && xp > (CHAMBER_X - PIPE_W)) {
-				if(yp < (CRYO_Y + PIPE_W) && yp > (CRYO_Y - PIPE_W)) {
+				if(yp < (CRYO_Y + PIPE_W + PIPE_BTN_EXTRA) && yp > (CRYO_Y - PIPE_W - PIPE_BTN_EXTRA)) {
 					clean();
 					state = Q_CRYOPIPE;
 				}
 			}
 			break;
 		
+
 		case Q_CHAMBER:
-			if(xp < OPT1_X1 && xp > OPT1_X0) {
-				if(yp < OPT1_Y1 && yp > OPT1_Y0) {
-					clean();
-					state = MAIN;
-				}
-			}
+			checkBackButton(xp, yp);
 
-			if(xp < OPT2_X1 && xp > OPT2_X0) {
-				if(yp < OPT2_Y1 && yp > OPT2_Y0) {
-					clean();
-					drawQChamberScreen(COLOR_B);
-				}
+			if(checkOptionButton(xp, yp)) {
+				clean();
+				drawQChamberScreen(COLOR_B);
 			}
-
 			break;
+
+
 		case Q_PREPUMP:
-			clean();
-			state = MAIN;
+			checkBackButton(xp, yp);
 			break;
-		case Q_CRYO:
-			clean();
-			state = MAIN;
-			break;
-		case Q_PREPUMPPIPE:
-			if(xp < OPT1_X1 && xp > OPT1_X0) {
-				if(yp < OPT1_Y1 && yp > OPT1_Y0) {
-					clean();
-					state = MAIN;
-				}
-			}
 
-			if(xp < OPT2_X1 && xp > OPT2_X0) {
-				if(yp < OPT2_Y1 && yp > OPT2_Y0) {
-					if(prepumpPipe) {
-						prepumpPipe = 0;
-					} else {
-						prepumpPipe = 1;
-					}
-				}
+
+		case Q_CRYO:
+			checkBackButton(xp, yp);
+			break;
+
+
+		case Q_PREPUMPPIPE:
+			checkBackButton(xp, yp);
+
+			if(checkOptionButton(xp, yp)) {
+				prepumpPipe = !prepumpPipe;
+				
 			}
 			break;
+
+
 		case Q_CRYOPIPE:
-			clean();
-			state = MAIN;
+			checkBackButton(xp, yp);
+
+			if(checkOptionButton(xp, yp)) {
+				cryoPipe = !cryoPipe;
+			}
 			break;
+
+
 		default:
 			break;
 	}
+
+}
+
+void drawBackButton(uint16_t color) {
+	// Draw optionbox 1
+	drawRect(OPT1_X0, OPT1_Y0, OPT1_X1, OPT1_Y1, color);
+	char* s2 = "Back";
+	uint16_t len = strlen(s2);
+	uint16_t offset = len*FONT_SX;
+	printStr(((OPT1_X0+OPT1_X1)>>1) - (offset>>1), ((OPT1_Y0+OPT1_Y1)>>1) - (FONT_SY>>1), s2, len, color);
+
+}
+
+void checkBackButton(uint16_t xp, uint16_t yp) {
+	if(xp < OPT1_X1 && xp > OPT1_X0) {
+		if(yp < OPT1_Y1 && yp > OPT1_Y0) {
+			clean();
+			state = MAIN;
+		}
+	}
+}
+
+void drawOptionButton(char* text, uint16_t color) {
+	drawRect(OPT2_X0, OPT2_Y0, OPT2_X1, OPT2_Y1, color);
+	uint16_t len = strlen(text);
+	uint16_t offset = len*FONT_SX;
+	printStr(((OPT2_X0+OPT2_X1)>>1) - (offset>>1), ((OPT2_Y0+OPT2_Y1)>>1) - (FONT_SY>>1), text, len, color);
+}
+
+uint8_t checkOptionButton(uint16_t xp, uint16_t yp) {
+
+	if(xp < OPT2_X1 && xp > OPT2_X0) {
+		if(yp < OPT2_Y1 && yp > OPT2_Y0) {
+			return 1;
+		}
+	}
+
+	return 0;
 
 }
