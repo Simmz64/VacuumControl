@@ -27,7 +27,8 @@ enum states {
 	Q_PREPUMP,
 	Q_CRYO, 
 	Q_PREPUMPPIPE,
-	Q_CRYOPIPE
+	Q_CRYOPIPE,
+	Q_NUMERICS
 };
 
 #endif

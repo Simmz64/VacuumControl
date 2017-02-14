@@ -121,7 +121,7 @@ void testGUI(void) {
       if(z < 200) {
          pressed = 0;
       }
-
+/*
       pidWrite(i);
       j++;
       if(j == 12) {
@@ -129,7 +129,7 @@ void testGUI(void) {
          i++;
          i = i % 256;
       }
-
+*/
       _delay_ms(1);
    }
 }

@@ -191,6 +191,9 @@ void clean(void) {
 		case Q_CRYOPIPE:
 			drawQCryoPipeScreen(COLOR_BG);
 			break;
+		case Q_NUMERICS:
+			drawNumericsScreen(COLOR_BG);
+			break;
 		default:
 			break;
 
@@ -355,9 +358,40 @@ void drawNumericsScreen(uint16_t color) {
 				s, 1, color);
 		}
 	}
+
+	char* s2 = " 0 ";
+	uint8_t len2 = strlen(s2);
+	// Draw 0, "," , Clear and Confirm buttons
+	drawRect(NUM_BTN_EDGEX + 3*NUM_BTN_W + 3*NUM_BTN_SPC, NUM_BTN_EDGEY, NUM_BTN_EDGEX + 4*NUM_BTN_W + 3*NUM_BTN_SPC, NUM_BTN_EDGEY + NUM_BTN_W, color);
+	printStr((NUM_BTN_EDGEX + 3*NUM_BTN_W + 3*NUM_BTN_SPC + (NUM_BTN_W >> 1)) - 12, 
+		NUM_BTN_EDGEY + (NUM_BTN_W>>1) - 4, s2, len2, color);
+
+	s2 = ", ";
+	len2 = strlen(s2);
+	drawRect(NUM_BTN_EDGEX + 4*NUM_BTN_W + 4*NUM_BTN_SPC, NUM_BTN_EDGEY, XMAX - NUM_BTN_EDGEX, NUM_BTN_EDGEY + NUM_BTN_W, color);
+	printStr(NUM_BTN_EDGEX + 4*NUM_BTN_W + 4*NUM_BTN_SPC + (NUM_BTN_W >> 1) - 8,
+		NUM_BTN_EDGEY + (NUM_BTN_W>>1) - 4, s2, len2, color);
+
+	char* s3 = "Clear";
+	uint8_t len3 = strlen(s3);
+	drawRect(NUM_BTN_EDGEX + 3*NUM_BTN_W + 3*NUM_BTN_SPC, NUM_BTN_EDGEY + NUM_BTN_W + NUM_BTN_SPC, XMAX - NUM_BTN_EDGEX, NUM_BTN_EDGEY + 2*NUM_BTN_W + NUM_BTN_SPC, color);
+	printStr(((XMAX - NUM_BTN_EDGEX + NUM_BTN_EDGEX + 3*NUM_BTN_W + 3*NUM_BTN_SPC)>>1) - 20, 
+		NUM_BTN_EDGEY + NUM_BTN_W + NUM_BTN_SPC + (NUM_BTN_W>>1) - 4, s3, len3, color);
+
+	char* s4 = "Confirm";
+	uint8_t len4 = strlen(s4);
+	drawRect(NUM_BTN_EDGEX + 3*NUM_BTN_W + 3*NUM_BTN_SPC, NUM_BTN_EDGEY + 2*NUM_BTN_W + 2*NUM_BTN_SPC, XMAX - NUM_BTN_EDGEX, NUM_BTN_EDGEY + 3*NUM_BTN_W + 2*NUM_BTN_SPC, color);
+	printStr(((XMAX - NUM_BTN_EDGEX + NUM_BTN_EDGEX + 3*NUM_BTN_W + 3*NUM_BTN_SPC)>>1) - 28, 
+		NUM_BTN_EDGEY + 2*NUM_BTN_W + 2*NUM_BTN_SPC + (NUM_BTN_W>>1) - 4, s4, len4, color);
+
+
 }
 
 // Function for recognizing when a numeric button is pressed on the numerics interface
+// Pressing a number between 0-9 returns that number
+// Pressing the Clear button returns 10
+// Pressing the Confirm button returns 11
+// Pressing the "," button returns 12
 uint8_t checkNumerics(uint16_t xp, uint16_t yp) {
 	if(xp < (NUM_BTN_EDGEX + NUM_BTN_W + NUM_BTN_SPC + (NUM_BTN_W>>1))) {
 		// Is in left half of numerics (1)
@@ -445,8 +479,14 @@ uint8_t checkNumerics(uint16_t xp, uint16_t yp) {
 						// Pressing button 3 (5)
 						return 3;
 					} else {
-						// Pressing button 0
-						return 0;
+
+						if(xp < (NUM_BTN_EDGEX + 4*NUM_BTN_W + 3*NUM_BTN_SPC + (NUM_BTN_SPC>>1))) {
+							// Pressing button 0
+							return 0;
+						} else {
+							// Pressing button ","
+							return 12;
+						}
 					}
 					
 				} else {
@@ -456,7 +496,7 @@ uint8_t checkNumerics(uint16_t xp, uint16_t yp) {
 						return 6;
 					} else {
 						// TODO Pressing upper part of button clear
-						return 0;
+						return 10;
 					}
 				}
 
@@ -487,7 +527,7 @@ uint8_t checkNumerics(uint16_t xp, uint16_t yp) {
 						return 6;
 					} else {
 						// TODO Pressing lower part of clear button
-						return 0;
+						return 10;
 					}
 
 				} else {
@@ -498,7 +538,7 @@ uint8_t checkNumerics(uint16_t xp, uint16_t yp) {
 						return 9;
 					} else {
 						// TODO Pressing confirm button
-						return 0;
+						return 11;
 					}
 				}
 
