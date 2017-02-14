@@ -23,6 +23,7 @@ volatile uint16_t boxCount[8] = {0, 0, 0, 0, 0, 0, 0, 0};
 volatile enum states state = MAIN;
 volatile uint8_t prepumpPipe = 0;
 volatile uint8_t cryoPipe = 0;
+volatile uint16_t numberHolder = 0;
 
 
 void init(void) {

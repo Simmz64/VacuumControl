@@ -361,9 +361,10 @@ void drawCross(uint16_t x, uint16_t y, uint16_t color) {
 	
 }
 
-void printNum(uint16_t x, uint16_t y, uint16_t num, uint16_t color) {
+void printNum(uint16_t x, uint16_t y, int16_t num, uint16_t color) {
 	uint16_t xpos = x;
-
+	
+/*
 	putChar(xpos, y, ((uint8_t) (num/1000))+48, color);
 	num = num % 1000;
 	xpos = xpos + 8;
@@ -374,6 +375,14 @@ void printNum(uint16_t x, uint16_t y, uint16_t num, uint16_t color) {
 	num = num % 10;
 	xpos = xpos + 8;
 	putChar(xpos, y, ((uint8_t) num)+48, color);
+*/
+	char buf[5];
+	itoa(num, buf, 10);
+	uint8_t i, len = strlen(buf);
+	for(i = 0; i < len; i++) {
+		putChar(xpos, y, buf[i], color);
+		xpos += 8;
+	}
 
 }
 

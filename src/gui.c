@@ -1,7 +1,7 @@
 #include "gui.h"
 
 /* How to add another screen
-1. Add the state to enum statess (main.h)
+1. Add the state to enum states (main.h)
 2. Add case in buttons
 3. Add draw method
 4. Add case in drawScreen
@@ -19,8 +19,7 @@ void drawScreen(void) {
 			drawQChamberScreen(COLOR_FG);
 			break;
 		case Q_PREPUMP:
-			//drawQPrepumpScreen(COLOR_FG);
-			drawNumericsScreen(COLOR_FG);
+			drawQPrepumpScreen(COLOR_FG);
 			break;
 		case Q_CRYO:
 			drawQCryoScreen(COLOR_FG);
@@ -31,6 +30,8 @@ void drawScreen(void) {
 		case Q_CRYOPIPE:
 			drawQCryoPipeScreen(COLOR_FG);
 			break;
+		case Q_NUMERICS:
+			drawNumericsScreen(COLOR_FG);
 		default:
 			break;
 	}
@@ -87,6 +88,13 @@ void drawMainScreen(uint16_t color) {
 	//drawValve((CHAMBER_X + PREPUMP_X)>>1, PREPUMP_Y, color, 1);
 	//drawValve((CHAMBER_X + CRYO_X)>>1, CRYO_Y, color, 0);
 	// ^Draws too slow
+
+
+	// Draw test numerics
+	drawRect(20, 180, 120, 220, color);
+	printStr(30, 196, "Numerics", 8, color);
+	fillRect(130, 196, 6*8, 8, COLOR_BG);
+	printNum(130, 196, numberHolder, color);
 
 }
 
@@ -203,7 +211,8 @@ void clean(void) {
 
 // Checks whether a button is pressed at xp and yp
 void buttons(uint16_t xp, uint16_t yp) {
-	uint8_t num, pos = 20;
+	uint8_t inc = 0;
+	int32_t temp = 0;
 	//Check chamber
 	switch(state) {
 		case MAIN:
@@ -247,6 +256,15 @@ void buttons(uint16_t xp, uint16_t yp) {
 					state = Q_CRYOPIPE;
 				}
 			}
+
+			// Press Numerics
+			// TODO Tidy up
+			if(xp < 120 && xp > 20) {
+				if(yp < 220 && yp > 180) {
+					clean();
+					state = Q_NUMERICS;
+				}
+			}
 			break;
 		
 
@@ -261,9 +279,7 @@ void buttons(uint16_t xp, uint16_t yp) {
 
 
 		case Q_PREPUMP:
-			num = checkNumerics(xp, yp);
-			printNum(pos, 20, num, COLOR_G);
-			pos += 8;
+			checkBackButton(xp, yp);
 
 			break;
 
@@ -291,7 +307,31 @@ void buttons(uint16_t xp, uint16_t yp) {
 			}
 			break;
 
+		case Q_NUMERICS:
 
+			inc = checkNumerics(xp, yp);
+			if(inc < 10) {
+				temp = numberHolder;
+				temp *= 10;
+				temp += inc;
+
+				if(temp <= 32767 && temp >= -32767) {
+					numberHolder = temp;
+				}
+
+			} else if(inc == 10) {
+				numberHolder = 0;
+			} else if(inc == 11) {
+				clean();
+				state = MAIN;
+			} else if(inc == 12) {
+				// TODO Decimal handling
+			} else if(inc == 13) {
+				numberHolder = -1*numberHolder;
+			}
+
+			
+			
 		default:
 			break;
 	}
@@ -372,10 +412,16 @@ void drawNumericsScreen(uint16_t color) {
 	printStr(NUM_BTN_EDGEX + 4*NUM_BTN_W + 4*NUM_BTN_SPC + (NUM_BTN_W >> 1) - 8,
 		NUM_BTN_EDGEY + (NUM_BTN_W>>1) - 4, s2, len2, color);
 
-	char* s3 = "Clear";
+	char* s3 = "Clr";
 	uint8_t len3 = strlen(s3);
-	drawRect(NUM_BTN_EDGEX + 3*NUM_BTN_W + 3*NUM_BTN_SPC, NUM_BTN_EDGEY + NUM_BTN_W + NUM_BTN_SPC, XMAX - NUM_BTN_EDGEX, NUM_BTN_EDGEY + 2*NUM_BTN_W + NUM_BTN_SPC, color);
-	printStr(((XMAX - NUM_BTN_EDGEX + NUM_BTN_EDGEX + 3*NUM_BTN_W + 3*NUM_BTN_SPC)>>1) - 20, 
+	drawRect(NUM_BTN_EDGEX + 3*NUM_BTN_W + 3*NUM_BTN_SPC, NUM_BTN_EDGEY + NUM_BTN_W + NUM_BTN_SPC, NUM_BTN_EDGEX + 4*NUM_BTN_W + 3*NUM_BTN_SPC, NUM_BTN_EDGEY + 2*NUM_BTN_W + NUM_BTN_SPC, color);
+	printStr(NUM_BTN_EDGEX + 3*NUM_BTN_W + 3*NUM_BTN_SPC + (NUM_BTN_W >> 1) - 12, 
+		NUM_BTN_EDGEY + NUM_BTN_W + NUM_BTN_SPC + (NUM_BTN_W>>1) - 4, s3, len3, color);
+
+	s3 = "- ";
+	len3 = strlen(s3);
+	drawRect(NUM_BTN_EDGEX + 4*NUM_BTN_W + 4*NUM_BTN_SPC, NUM_BTN_EDGEY + NUM_BTN_W + NUM_BTN_SPC, XMAX - NUM_BTN_EDGEX, NUM_BTN_EDGEY + 2*NUM_BTN_W + NUM_BTN_SPC, color);
+	printStr(NUM_BTN_EDGEX + 4*NUM_BTN_W + 4*NUM_BTN_SPC + (NUM_BTN_W >> 1) - 8,
 		NUM_BTN_EDGEY + NUM_BTN_W + NUM_BTN_SPC + (NUM_BTN_W>>1) - 4, s3, len3, color);
 
 	char* s4 = "Confirm";
@@ -383,6 +429,9 @@ void drawNumericsScreen(uint16_t color) {
 	drawRect(NUM_BTN_EDGEX + 3*NUM_BTN_W + 3*NUM_BTN_SPC, NUM_BTN_EDGEY + 2*NUM_BTN_W + 2*NUM_BTN_SPC, XMAX - NUM_BTN_EDGEX, NUM_BTN_EDGEY + 3*NUM_BTN_W + 2*NUM_BTN_SPC, color);
 	printStr(((XMAX - NUM_BTN_EDGEX + NUM_BTN_EDGEX + 3*NUM_BTN_W + 3*NUM_BTN_SPC)>>1) - 28, 
 		NUM_BTN_EDGEY + 2*NUM_BTN_W + 2*NUM_BTN_SPC + (NUM_BTN_W>>1) - 4, s4, len4, color);
+
+	fillRect(20, 20, 6*8, 8, COLOR_BG);
+	printNum(20, 20, numberHolder, color);
 
 
 }
@@ -479,7 +528,7 @@ uint8_t checkNumerics(uint16_t xp, uint16_t yp) {
 						// Pressing button 3 (5)
 						return 3;
 					} else {
-
+						// Pressign 0 or ","
 						if(xp < (NUM_BTN_EDGEX + 4*NUM_BTN_W + 3*NUM_BTN_SPC + (NUM_BTN_SPC>>1))) {
 							// Pressing button 0
 							return 0;
@@ -495,8 +544,14 @@ uint8_t checkNumerics(uint16_t xp, uint16_t yp) {
 						// Pressing upper part of button 6 (5)
 						return 6;
 					} else {
-						// TODO Pressing upper part of button clear
-						return 10;
+						// Pressing upper part of clear or -
+						if(xp < (NUM_BTN_EDGEX + 4*NUM_BTN_W + 3*NUM_BTN_SPC + (NUM_BTN_SPC>>1))) {
+							// Pressing upper part of button clear
+							return 10;
+						} else {
+							// Pressing upper part of button -
+							return 13;
+						}
 					}
 				}
 
@@ -526,8 +581,14 @@ uint8_t checkNumerics(uint16_t xp, uint16_t yp) {
 						// Pressing lower part of button 6
 						return 6;
 					} else {
-						// TODO Pressing lower part of clear button
-						return 10;
+						// Pressing lower part of clear or -
+						if(xp < (NUM_BTN_EDGEX + 4*NUM_BTN_W + 3*NUM_BTN_SPC + (NUM_BTN_SPC>>1))) {
+							// Pressing lower part of button clear
+							return 10;
+						} else {
+							// Pressing lower part of button -
+							return 13;
+						}
 					}
 
 				} else {
@@ -537,7 +598,7 @@ uint8_t checkNumerics(uint16_t xp, uint16_t yp) {
 						// Pressing button 9
 						return 9;
 					} else {
-						// TODO Pressing confirm button
+						// Pressing confirm button
 						return 11;
 					}
 				}

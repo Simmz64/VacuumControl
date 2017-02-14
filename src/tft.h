@@ -46,7 +46,7 @@ void testPutChar(uint16_t color);
 void helpChar(uint8_t in, uint16_t color);
 void putChar(uint16_t x, uint16_t y, uint8_t ch, uint16_t color);
 void drawCross(uint16_t x, uint16_t y, uint16_t color);
-void printNum(uint16_t x, uint16_t y, uint16_t num, uint16_t color);
+void printNum(uint16_t x, uint16_t y, int16_t num, uint16_t color);
 void printStr(uint16_t x, uint16_t y, char* s, uint8_t len, uint16_t color);
 void drawTestUI(void);
 void drawValve(uint16_t xp, uint16_t yp, uint16_t color, uint8_t status);
