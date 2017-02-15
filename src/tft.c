@@ -436,6 +436,16 @@ void drawValve(uint16_t xp, uint16_t yp, uint16_t color, uint8_t status) {
 	}
 }
 
+void printFixpDec(uint16_t xp, uint16_t yp, int16_t intPart, uint16_t decPart, uint16_t color) {
+	
+	char buf[14];
+	itoa(intPart, buf, 10);
+	uint8_t len = strlen(buf);
+	buf[len] = '.';
+	itoa(decPart, (buf + len + 1), 10);
+	len = strlen(buf);
+	printStr(xp, yp, buf, len, color);
+}
 
 void printToBox(uint16_t xbox, uint16_t ybox, uint16_t num) {
 	printNum(xbox+19, ybox+42, num, 0x0000);

@@ -9,6 +9,8 @@
 6. Add additional detail to main screen
 */
 
+volatile uint8_t decOn = 0;
+
 
 void drawScreen(void) {
 	switch(state) {
@@ -93,8 +95,8 @@ void drawMainScreen(uint16_t color) {
 	// Draw test numerics
 	drawRect(20, 180, 120, 220, color);
 	printStr(30, 196, "Numerics", 8, color);
-	fillRect(130, 196, 6*8, 8, COLOR_BG);
-	printNum(130, 196, numberHolder, color);
+	fillRect(130, 196, 14*8, 8, COLOR_BG);
+	printFixpDec(130, 196, intHolder, decHolder, color);
 
 }
 
@@ -311,23 +313,35 @@ void buttons(uint16_t xp, uint16_t yp) {
 
 			inc = checkNumerics(xp, yp);
 			if(inc < 10) {
-				temp = numberHolder;
-				temp *= 10;
-				temp += inc;
+				if(decOn) {
+					temp = decHolder;
+					temp *= 10;
+					temp += inc;
 
-				if(temp <= 32767 && temp >= -32767) {
-					numberHolder = temp;
+					if(temp <= 32767 && temp >= -32767) {
+						decHolder = temp;
+					}
+
+				} else {
+					temp = intHolder;
+					temp *= 10;
+					temp += inc;
+
+					if(temp <= 32767 && temp >= -32767) {
+						intHolder = temp;
+					}
 				}
 
 			} else if(inc == 10) {
-				numberHolder = 0;
+				intHolder = 0;
+				decHolder = 0;
 			} else if(inc == 11) {
 				clean();
 				state = MAIN;
 			} else if(inc == 12) {
-				// TODO Decimal handling
+				decOn = !decOn;
 			} else if(inc == 13) {
-				numberHolder = -1*numberHolder;
+				intHolder = -1*intHolder;
 			}
 
 			
@@ -430,8 +444,8 @@ void drawNumericsScreen(uint16_t color) {
 	printStr(((XMAX - NUM_BTN_EDGEX + NUM_BTN_EDGEX + 3*NUM_BTN_W + 3*NUM_BTN_SPC)>>1) - 28, 
 		NUM_BTN_EDGEY + 2*NUM_BTN_W + 2*NUM_BTN_SPC + (NUM_BTN_W>>1) - 4, s4, len4, color);
 
-	fillRect(20, 20, 6*8, 8, COLOR_BG);
-	printNum(20, 20, numberHolder, color);
+	fillRect(20, 20, 14*8, 8, COLOR_BG);
+	printFixpDec(20, 20, intHolder, decHolder, color);
 
 
 }
