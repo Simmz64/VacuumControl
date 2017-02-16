@@ -615,10 +615,13 @@ uint8_t checkNumerics(uint16_t xp, uint16_t yp) {
 						// Pressing confirm button
 						return 11;
 					}
+					
 				}
 
 			}
+
 		}
 
 	}
+
 }
