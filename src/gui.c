@@ -96,7 +96,10 @@ void drawMainScreen(uint16_t color) {
 	drawRect(20, 180, 120, 220, color);
 	printStr(30, 196, "Numerics", 8, color);
 	fillRect(130, 196, 14*8, 8, COLOR_BG);
-	printFixpDec(130, 196, intHolder, decHolder, color);
+	printFixpDec(130, 196, numberHolder, color);
+	//int32_t t = (5UL << fixpShift) + 3;
+	//t = ~t + 1;
+	//printFixpDec(130, 210, t, color);
 
 }
 
@@ -214,7 +217,7 @@ void clean(void) {
 // Checks whether a button is pressed at xp and yp
 void buttons(uint16_t xp, uint16_t yp) {
 	uint8_t inc = 0;
-	int32_t temp = 0;
+	int32_t tempInt = 0, tempDec = 0;
 	//Check chamber
 	switch(state) {
 		case MAIN:
@@ -314,34 +317,36 @@ void buttons(uint16_t xp, uint16_t yp) {
 			inc = checkNumerics(xp, yp);
 			if(inc < 10) {
 				if(decOn) {
-					temp = decHolder;
-					temp *= 10;
-					temp += inc;
+					tempDec = numberHolder & fixpMask;
+					tempInt = numberHolder & ~fixpMask;
+					tempDec *= 10;
+					tempDec += inc;
 
-					if(temp <= 32767 && temp >= -32767) {
-						decHolder = temp;
+					if(tempDec <= 32767 && tempDec >= -32767) {
+						numberHolder = tempDec + tempInt;
 					}
 
 				} else {
-					temp = intHolder;
-					temp *= 10;
-					temp += inc;
+					tempInt = numberHolder & ~fixpMask; // Get MSBs
+					tempInt >>= fixpShift;
+					tempDec = numberHolder & fixpMask; // Get LSBs
+					tempInt = tempInt * 10;
+					tempInt += inc;
 
-					if(temp <= 32767 && temp >= -32767) {
-						intHolder = temp;
+					if(tempInt <= 32767 && tempInt >= -32767) {
+						numberHolder = tempDec + (tempInt << fixpShift);
 					}
 				}
 
 			} else if(inc == 10) {
-				intHolder = 0;
-				decHolder = 0;
+				numberHolder = 0;
 			} else if(inc == 11) {
 				clean();
 				state = MAIN;
 			} else if(inc == 12) {
 				decOn = !decOn;
 			} else if(inc == 13) {
-				intHolder = -1*intHolder;
+				numberHolder = ~numberHolder + 1; //Flip first bit (sign bit)
 			}
 
 			
@@ -445,7 +450,7 @@ void drawNumericsScreen(uint16_t color) {
 		NUM_BTN_EDGEY + 2*NUM_BTN_W + 2*NUM_BTN_SPC + (NUM_BTN_W>>1) - 4, s4, len4, color);
 
 	fillRect(20, 20, 14*8, 8, COLOR_BG);
-	printFixpDec(20, 20, intHolder, decHolder, color);
+	printFixpDec(20, 20, numberHolder, color);
 
 
 }
@@ -615,7 +620,7 @@ uint8_t checkNumerics(uint16_t xp, uint16_t yp) {
 						// Pressing confirm button
 						return 11;
 					}
-					
+
 				}
 
 			}

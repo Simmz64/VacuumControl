@@ -364,18 +364,6 @@ void drawCross(uint16_t x, uint16_t y, uint16_t color) {
 void printNum(uint16_t x, uint16_t y, int16_t num, uint16_t color) {
 	uint16_t xpos = x;
 	
-/*
-	putChar(xpos, y, ((uint8_t) (num/1000))+48, color);
-	num = num % 1000;
-	xpos = xpos + 8;
-	putChar(xpos, y, ((uint8_t) (num/100))+48, color);
-	num = num % 100;
-	xpos = xpos + 8;
-	putChar(xpos, y, ((uint8_t) (num/10))+48, color);
-	num = num % 10;
-	xpos = xpos + 8;
-	putChar(xpos, y, ((uint8_t) num)+48, color);
-*/
 	char buf[5];
 	itoa(num, buf, 10);
 	uint8_t i, len = strlen(buf);
@@ -436,6 +424,35 @@ void drawValve(uint16_t xp, uint16_t yp, uint16_t color, uint8_t status) {
 	}
 }
 
+
+void printFixpDec(uint16_t xp, uint16_t yp, int32_t num, uint16_t color) {
+
+	// Want to print top 16 bits as signed int, then lower 16 bits as unsigned int
+	int16_t top = (num >> fixpShift);
+	int16_t bot = (num & fixpMask);
+	
+
+	// These two ifs are a bit hacky, but it seems to print correctly when using them
+	if(bot < 0) {
+		bot = ~bot + 1;
+	}
+
+	if(bot != 0 && num < 0) {
+		top++;
+	}
+
+	char buf[16];
+	itoa(top, buf, 10);
+	uint8_t len = strlen(buf);
+	buf[len] = '.';
+	itoa(bot, (buf + len + 1), 10);
+	len = strlen(buf);
+	printStr(xp, yp, buf, len, color);
+
+}
+
+
+/*  Old implementation
 void printFixpDec(uint16_t xp, uint16_t yp, int16_t intPart, uint16_t decPart, uint16_t color) {
 	
 	char buf[14];
@@ -446,6 +463,8 @@ void printFixpDec(uint16_t xp, uint16_t yp, int16_t intPart, uint16_t decPart, u
 	len = strlen(buf);
 	printStr(xp, yp, buf, len, color);
 }
+*/
+
 
 void printToBox(uint16_t xbox, uint16_t ybox, uint16_t num) {
 	printNum(xbox+19, ybox+42, num, 0x0000);

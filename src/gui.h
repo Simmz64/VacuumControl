@@ -71,7 +71,8 @@ uint8_t checkNumerics(uint16_t xp, uint16_t yp);
 extern volatile enum states state;
 extern volatile uint8_t prepumpPipe;
 extern volatile uint8_t cryoPipe;
-extern volatile int16_t intHolder;
-extern volatile uint16_t decHolder;
+//extern volatile int16_t intHolder;
+//extern volatile uint16_t decHolder;
+extern volatile int32_t numberHolder;
 
 #endif
