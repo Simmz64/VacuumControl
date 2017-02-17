@@ -3,3 +3,4 @@ src/ASF/*
 src/config/*
 VacuumControl.*
 Debug/*
+src/script.*
