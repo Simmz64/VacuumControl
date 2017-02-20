@@ -419,7 +419,7 @@ void drawNumericsScreen(uint16_t color) {
 	for(i = 0; i < 3; i++) {
 		for(j = 0; j < 3; j++) {
 			utoa((j+1) + (i*3), s,10);
-			printStr(NUM_BTN_EDGEX + j*(NUM_BTN_W + NUM_BTN_SPC) + (NUM_BTN_W>>1) - 4, NUM_BTN_EDGEY + i*(NUM_BTN_W + NUM_BTN_SPC) + (NUM_BTN_W>>1) - 4,
+			printStr(NUM_BTN_EDGEX + j*(NUM_BTN_W + NUM_BTN_SPC) + (NUM_BTN_W>1>) - 4, NUM_BTN_EDGEY + i*(NUM_BTN_W + NUM_BTN_SPC) + (NUM_BTN_W>>1) - 4,
 				s, 1, color);
 		}
 	}
