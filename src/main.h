@@ -22,6 +22,7 @@ void init(void);
 void blinkLED(void);
 void testTouch(void);
 void testGUI(void);
+void pidLoop(void);
 /*******************************/
 
 enum states {

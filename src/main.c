@@ -135,6 +135,47 @@ void testGUI(void) {
    }
 }
 
+void pidLoop(void) {
+   uint16_t xpos = 0, ypos = 0, z = 0;
+   uint8_t redraw = 1, pressed = 0;
+   uint8_t i = 0, j = 0;
+
+   while(1) {
+      
+      if(redraw) {
+         drawCurrentState(COLOR_FG);
+         redraw = 0;
+      }
+
+      z = readZ();
+
+      if(z > 500 && !pressed) {
+         xpos = readX();
+         ypos = readY();
+         redraw = 1;
+         pressed = 1;
+         pidButtons(xpos - 512, ypos - 512);
+      } else {
+         xpos = 0;
+         ypos = 0;
+      }
+
+      if(z < 200) {
+         pressed = 0;
+      }
+/*
+      pidWrite(i);
+      j++;
+      if(j == 12) {
+         j = 0;
+         i++;
+         i = i % 256;
+      }
+*/
+      _delay_ms(1);
+   }
+}
+
 int main (void)
 {
 
@@ -143,7 +184,7 @@ int main (void)
 
    cls(COLOR_BG);
 
+   //pidLoop();
    testGUI();
    //testTouch();
-   //script();
 }

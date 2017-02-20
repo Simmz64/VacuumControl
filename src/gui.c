@@ -33,7 +33,7 @@ void drawScreen(void) {
 			drawQCryoPipeScreen(COLOR_FG);
 			break;
 		case Q_NUMERICS:
-			drawNumericsScreen(COLOR_FG);
+			testNumericsScreen(COLOR_FG);
 		default:
 			break;
 	}
@@ -205,7 +205,7 @@ void clean(void) {
 			drawQCryoPipeScreen(COLOR_BG);
 			break;
 		case Q_NUMERICS:
-			drawNumericsScreen(COLOR_BG);
+			testNumericsScreen(COLOR_BG);
 			break;
 		default:
 			break;
@@ -395,6 +395,12 @@ uint8_t checkOptionButton(uint16_t xp, uint16_t yp) {
 
 }
 
+void testNumericsScreen(uint16_t color) {
+	drawNumericsScreen(color);
+	fillRect(20, 20, 14*8, 8, COLOR_BG);
+	printFixpDec(20, 20, numberHolder, color);
+}
+
 
 // Function for drawing the numerics input screen
 void drawNumericsScreen(uint16_t color) {
@@ -449,8 +455,7 @@ void drawNumericsScreen(uint16_t color) {
 	printStr(((XMAX - NUM_BTN_EDGEX + NUM_BTN_EDGEX + 3*NUM_BTN_W + 3*NUM_BTN_SPC)>>1) - 28, 
 		NUM_BTN_EDGEY + 2*NUM_BTN_W + 2*NUM_BTN_SPC + (NUM_BTN_W>>1) - 4, s4, len4, color);
 
-	fillRect(20, 20, 14*8, 8, COLOR_BG);
-	printFixpDec(20, 20, numberHolder, color);
+
 
 
 }

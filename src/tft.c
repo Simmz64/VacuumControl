@@ -434,6 +434,7 @@ void printFixpDec(uint16_t xp, uint16_t yp, int32_t num, uint16_t color) {
 
 	// These two ifs are a bit hacky, but it seems to print correctly when using them
 	if(bot < 0) {
+		// Use absolute value of bot
 		bot = ~bot + 1;
 	}
 
