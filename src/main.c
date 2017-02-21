@@ -44,9 +44,9 @@ void init(void) {
 
 void blinkLED(void) {
    PORTB |= (1 << PB0);
-   _delay_ms(100);
+   _delay_ms(50);
    PORTB &= ~(1 << PB0);
-   _delay_ms(100);
+   _delay_ms(50);
 }
 
 void testTouch(void) {
@@ -185,6 +185,10 @@ int main (void)
    cls(COLOR_BG);
 
    //pidLoop();
-   testGUI();
+   //testGUI();
    //testTouch();
+
+   while(1) {
+      blinkLED();
+   }
 }
