@@ -30,7 +30,8 @@ void init(void) {
 
    // Set MOSI, SCK, PB1, PB2 as output
    DDRB = (1<<PB5)|(1<<PB3) | (1<<PB1)|(1<<PB2)|(1<<PB0);
-   DDRD = (1<<PD7);
+   DDRD = (1<<PD7)|(0 << PD6);
+   PORTD = (1 << PD6);
    // Initialize SPI command register
    SPCR = (0<<SPIE)|(1<<SPE)|(1<<MSTR)|(1<<CPHA)|(1<<CPOL)|(0<<SPR1)|(0<<SPR0);
    SPSR = (1<<SPI2X);
@@ -189,6 +190,9 @@ int main (void)
    //testTouch();
 
    while(1) {
-      blinkLED();
+      if(PIND & (1 << PD6)) {
+         blinkLED();
+      }
+      _delay_ms(50);
    }
 }
