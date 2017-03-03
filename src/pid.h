@@ -36,7 +36,13 @@ void drawPIDKI(uint16_t color);
 void drawPIDKD(uint16_t color);
 void pidButtons(uint16_t xp, uint16_t yp);
 void readNumericsScreen(uint16_t xp, uint16_t yp, volatile int32_t* k);
+void readPos(void);
+void meanPos(void);
+void errCalc(void);
 /*******************************/
+
+extern volatile uint16_t potentiom;
+extern volatile uint8_t decOn;
 
 
 

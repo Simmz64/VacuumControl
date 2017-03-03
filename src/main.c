@@ -24,6 +24,7 @@ volatile enum states state = MAIN;
 volatile uint8_t prepumpPipe = 0;
 volatile uint8_t cryoPipe = 0;
 volatile int32_t numberHolder = 0;
+volatile uint16_t potentiom = 0;
 
 
 void init(void) {
@@ -123,6 +124,7 @@ void testGUI(void) {
       if(z < 200) {
          pressed = 0;
       }
+
 /*
       pidWrite(i);
       j++;
@@ -132,6 +134,7 @@ void testGUI(void) {
          i = i % 256;
       }
 */
+
       _delay_ms(1);
    }
 }
@@ -164,6 +167,10 @@ void pidLoop(void) {
       if(z < 200) {
          pressed = 0;
       }
+
+      //potentiom = pidRead();
+      readPos();
+      redraw = 1;
 /*
       pidWrite(i);
       j++;
@@ -185,14 +192,7 @@ int main (void)
 
    cls(COLOR_BG);
 
-   //pidLoop();
+   pidLoop();
    //testGUI();
    //testTouch();
-
-   while(1) {
-      if(PIND & (1 << PD6)) {
-         blinkLED();
-      }
-      _delay_ms(50);
-   }
 }

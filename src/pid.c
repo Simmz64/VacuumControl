@@ -2,9 +2,13 @@
 
 
 volatile enum pidstates pidstate = PID_MAIN;
-extern volatile uint8_t decOn;
 volatile int8_t sign = 1;
 volatile int32_t Kp = 0, Ki = 0, Kd = 0;
+uint16_t posbuf[5] = {0, 0, 0, 0, 0};
+uint8_t bufptr = 0;
+uint16_t pos = 0;
+uint16_t dest = 512;
+int16_t err = 0;
 
 
 int16_t diff(int16_t e, int16_t e_prev) {
@@ -15,10 +19,10 @@ int16_t diff(int16_t e, int16_t e_prev) {
 
 // Reads an analog value from the ADC on port PC4
 uint16_t pidRead(void) {
-	DDRC |= (1 << PID_IN);
+	//DDRC &= ~(1 << PID_IN);
 
 	// Choose PC4 as input
-	ADMUX = (0 << REFS1)|(0 << REFS0)|(0 << ADLAR)|(1 << MUX2)|(0 << MUX1)|(0 << MUX0);
+	ADMUX = (0 << REFS1)|(1 << REFS0)|(0 << ADLAR)|(1 << MUX2)|(0 << MUX1)|(0 << MUX0);
 
 	_delay_us(20);
 
@@ -93,6 +97,10 @@ void drawPIDMain(uint16_t color) {
 	drawRect((XMAX>>1) - PID_RECTW, (YMAX>>1) + (YMAX>>2) - PID_RECTH, (XMAX>>1) + PID_RECTW, (YMAX>>1) + (YMAX>>2) + PID_RECTH, color);
 	printStr((XMAX>>1) - FONT_SX, (YMAX>>1) + (YMAX>>2) - (PID_RECTH >> 1) - (FONT_SY>>1), "Kd", 2, color);
 	printFixpDec((XMAX>>1) - PID_RECTW + FONT_SX, (YMAX>>1) + (YMAX>>2) + (PID_RECTH >> 1) - (FONT_SY>>1), Kd, color);
+
+	// Draw potentiometer value
+	fillRect(20, 20, 20+8*5, 28, COLOR_BG);
+	printNum(20, 20, pos, color);
 
 
 	// Draw some lines to make it look better
@@ -197,3 +205,43 @@ void readNumericsScreen(uint16_t xp, uint16_t yp, volatile int32_t* k) {
 		sign *= -1;
 	}
 }
+
+// Function to read a position value and place it in the ringbuffer
+void readPos(void) {
+	posbuf[bufptr] = pidRead();
+	bufptr++;
+	bufptr %= 5;
+	meanPos();
+}
+
+// Function to return mean value of readings in ringbuffer
+void meanPos(void) {
+	uint16_t vals = 0;
+	uint8_t i;
+	for(i = 0; i < 5; i++) {
+		vals += posbuf[i];
+	}
+
+	pos = vals/5;
+}
+
+// Function to calculate the error (min (|A|, |B|, |C|))
+void errCalc(void) {
+	int16_t A, B, C;
+	A = pos - dest;
+	A = abs(A);
+	B = pos - (dest + 1023);
+	B = abs(B);
+	C = pos - (dest - 1023);
+	C = abs(C);
+
+	if(A < B && A < C) {
+		err = pos - dest;
+	} else if(B < C) {
+		err = pos - (dest + 1023);
+	} else {
+		err = pos - (dest - 1023);
+	}
+}
+
+// Function to 
