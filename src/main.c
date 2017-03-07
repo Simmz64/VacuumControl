@@ -142,8 +142,10 @@ void testGUI(void) {
 void pidLoop(void) {
    uint16_t xpos = 0, ypos = 0, z = 0;
    uint8_t redraw = 1, pressed = 0;
-   uint8_t i = 0, j = 0;
+   uint16_t i = 0;
 
+   pidCh1Write(128);
+   pidCh2Write(64);
    while(1) {
       
       if(redraw) {
@@ -171,6 +173,9 @@ void pidLoop(void) {
       //potentiom = pidRead();
       readPos();
       redraw = 1;
+
+      adjustHeading();
+      //adjustHeadingSimple();
 /*
       pidWrite(i);
       j++;
