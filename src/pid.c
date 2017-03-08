@@ -341,7 +341,7 @@ void adjustHeading(void) {
 	errCalc();
 	int32_t out = Kp * err + ((Ki * integrerr) / dtinv) + ((Kd * deriverr) * (dtinv>>4));
 
-	if(out > 0) {
+	if(out > 10) {
 		// Turn counter-clockwise
 		pidCh1Write(0);
 		if(out > 255000) {
@@ -350,13 +350,17 @@ void adjustHeading(void) {
 			pidCh2Write(out/1000);
 		}
 		
-	} else if(out < 0) {
+	} else if(out < 10) {
+		// Turn clockwise
 		pidCh2Write(0);
 		if(out < -255000) {
 			pidCh1Write(255);
 		} else {
 			pidCh2Write(-1*out/1000);
 		}
+	} else {
+		pidCh1Write(255);
+		pidCh2Write(255);
 	}
 
 	printNum(200, 20, out >> 16, COLOR_FG);
