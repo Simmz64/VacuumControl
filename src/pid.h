@@ -27,7 +27,7 @@ enum pidstates {
 
 
 /***** Function prototypes *****/
-int16_t diff(int16_t e, int16_t e_prev);
+void pidInit(void);
 uint16_t pidRead(void);
 void pidCh1Write(uint8_t in);
 void pidCh2Write(uint8_t in);
@@ -46,6 +46,9 @@ void meanPos(void);
 void errCalc(void);
 void adjustHeadingSimple(void);
 void adjustHeading(void);
+void stopTurn(void);
+void turnLeft(void);
+void turnRight(void);
 /*******************************/
 
 extern volatile uint16_t potentiom;

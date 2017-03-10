@@ -144,8 +144,10 @@ void pidLoop(void) {
    uint8_t redraw = 1, pressed = 0;
    uint16_t i = 0;
 
-   pidCh1Write(128);
-   pidCh2Write(64);
+   pidInit();
+
+   //pidCh1Write(128);
+   //pidCh2Write(64);
    while(1) {
       
       if(redraw) {

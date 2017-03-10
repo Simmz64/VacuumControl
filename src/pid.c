@@ -16,18 +16,26 @@ uint16_t head = 400;
 uint8_t update = 1;
 
 
-int16_t diff(int16_t e, int16_t e_prev) {
-	// Time discrete differentiation
-	return e - e_prev;
-}
+void pidInit(void) {
+	// TIMER0
+	//   mode 3: fast PWM   top=0xff
+	//   clk/1 prescaler
 
+	TCCR0A = (1 << COM0A1) | (0 << COM0A0) 
+     	| (1 << COM0B1) | (0 << COM0B0)
+     	| (1 << WGM01)  | (1 << WGM00);
+	TCCR0B = (0 << WGM02)
+     	| (0 << CS02)   | (0 << CS01)   | (1 << CS00);
+
+    DDRD   |= (1 << PID_OUT1)|(1 << PID_OUT2)|(1 << PD4)|(1 << PD3);   // set PWM-pins to output
+}
 
 // Reads an analog value from the ADC on port PC4
 uint16_t pidRead(void) {
 	//DDRC &= ~(1 << PID_IN);
 
 	// Choose PC4 as input
-	ADMUX = (0 << REFS1)|(1 << REFS0)|(0 << ADLAR)|(1 << MUX2)|(0 << MUX1)|(0 << MUX0);
+	ADMUX = (0 << REFS1)|(0 << REFS0)|(0 << ADLAR)|(1 << MUX2)|(0 << MUX1)|(0 << MUX0);
 
 	_delay_us(20);
 
@@ -42,34 +50,17 @@ uint16_t pidRead(void) {
 // The port should be connected to a LP filter to smooth the signal level
 // Ch1 is configured to PD5
 void pidCh1Write(uint8_t in) {
-	// TIMER2
-	//   mode 3: fast PWM   top=0xff
-	//   clk/1 prescaler
 
-	TCCR0A = (1 << COM0A1) | (0 << COM0A0) 
-     	| (1 << COM0B1) | (0 << COM0B0)
-     	| (1 << WGM01)  | (1 << WGM00);
-	TCCR0B = (0 << WGM02)
-     	| (0 << CS02)   | (0 << CS01)   | (1 << CS00);
 	
 	OCR0B  = in;    // output compare register A -> pin 11, used as trigger
-	DDRD   |= (1 << PID_OUT1);   // set PWM-pins to output
+
 }
 
 // Ch2 is configured to PD6
 void pidCh2Write(uint8_t in) {
-	// TIMER2
-	//   mode 3: fast PWM   top=0xff
-	//   clk/1 prescaler
 
-	TCCR0A = (1 << COM0A1) | (0 << COM0A0) 
-     	| (1 << COM0B1) | (0 << COM0B0)
-     	| (1 << WGM01)  | (1 << WGM00);
-	TCCR0B = (0 << WGM02)
-     	| (0 << CS02)   | (0 << CS01)   | (1 << CS00);
-	
 	OCR0A  = in;    // output compare register A -> pin 11, used as trigger
-	DDRD   |= (1 << PID_OUT2);   // set PWM-pins to output
+
 }
 
 void gotoState(enum pidstates nextstate) {
@@ -130,6 +121,7 @@ void drawPIDMain(uint16_t color) {
 	drawRect(20, (YMAX>>1) - PID_RECTH, 100, (YMAX>>1) + PID_RECTH, color);
 	printStr(20 + FONT_SX, (YMAX>>1) - (PID_RECTH >> 1) - (FONT_SY>>1), "Heading", 7, color);
 	//fillRect(20 + FONT_SX, (YMAX>>1) + (PID_RECTH >> 1) - (FONT_SY>>1), 20 + 7*FONT_SX, (YMAX>>1) + (PID_RECTH >> 1) + (FONT_SY>>1), color);
+	//fillRect(20 + FONT_SX, (YMAX>>1) + (PID_RECTH >> 1) - (FONT_SY>>1), 20 + 8*FONT_SX, (YMAX>>1) + (PID_RECTH >> 1) - (FONT_SY>>1), COLOR_BG);
 	printNum(20 + FONT_SX, (YMAX>>1) + (PID_RECTH >> 1) - (FONT_SY>>1), head, color);
 
 	// Draw some lines to make it look better
@@ -340,7 +332,7 @@ void adjustHeading(void) {
 	// dt is execution time of loop / how often outputs are sent
 	errCalc();
 	int32_t out = Kp * err + ((Ki * integrerr) / dtinv) + ((Kd * deriverr) * (dtinv>>4));
-
+/*
 	if(out > 0) {
 		// Turn counter-clockwise
 		pidCh1Write(0);
@@ -355,9 +347,45 @@ void adjustHeading(void) {
 		if(out < -255000) {
 			pidCh1Write(255);
 		} else {
-			pidCh2Write(-1*out/1000);
+			pidCh1Write(-1*out/1000);
 		}
 	}
+*/
+	if(out > 0) {
+		turnLeft();
+	} else if(out < 0) {
+		turnRight();
+	} else {
+		stopTurn();
+	}
 
+	if(out < -255000 || out > 255000) {
+		pidCh1Write(0);
+	} else if (out < 0) {
+		pidCh1Write(255 + out/1000);
+	} else {
+		pidCh1Write(255 - out/1000);
+	}
+
+
+	fillRect(200, 20, 64, 8, COLOR_BG);
 	printNum(200, 20, out >> 16, COLOR_FG);
+}
+
+void stopTurn(void) {
+	PORTD &= ~((1 << PD4) | (1 << PD3));
+}
+
+void turnLeft(void) {
+	// Break
+	stopTurn();
+	// Make
+	PORTD |= (1 << PD4);
+}
+
+void turnRight(void) {
+	// Break
+	stopTurn();
+	// Make
+	PORTD |= (1 << PD3);
 }
