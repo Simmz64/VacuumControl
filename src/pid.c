@@ -3,19 +3,25 @@
 
 volatile enum pidstates pidstate = PID_MAIN;
 volatile int8_t sign = 1;
-volatile int32_t Kp = 0, Ki = 0, Kd = 0;
+//volatile int32_t Kp = 0, Ki = 0, Kd = 0;
 uint16_t posbuf[5] = {0, 0, 0, 0, 0};
 uint8_t bufptr = 0;
 uint16_t pos = 0;
 uint16_t dest = 512;
 int16_t err = 0;
-int16_t integrerr = 0;
+int32_t integrerr = 0;
 int16_t deriverr = 0;
-int16_t dtinv = 100;
+int16_t preverr = 0;
+int16_t dtinv = 10;
 uint16_t head = 400;
 uint8_t update = 1;
 
+int16_t Kp_int = 0, Ki_int = 0, Kd_int = 0;
+int16_t Kp_dec = 0, Ki_dec = 0, Kd_dec = 0;
+uint16_t Kp_scl = 1, Ki_scl = 1, Kd_scl = 1;
 
+
+/************************************** ADC ***************************************/
 void pidInit(void) {
 	// TIMER0
 	//   mode 3: fast PWM   top=0xff
@@ -62,6 +68,8 @@ void pidCh2Write(uint8_t in) {
 	OCR0A  = in;    // output compare register A -> pin 11, used as trigger
 
 }
+/************************************** ADC ***************************************/
+
 
 void gotoState(enum pidstates nextstate) {
 	drawCurrentState(COLOR_BG); // Perform cleanup
@@ -70,7 +78,7 @@ void gotoState(enum pidstates nextstate) {
 }
 
 
-// Graphics for the PID
+/************************************** Drawing methods ***************************************/
 void drawCurrentState(uint16_t color) {
 	switch(pidstate) {
 		case PID_MAIN:
@@ -101,17 +109,17 @@ void drawPIDMain(uint16_t color) {
 	// Draw KP rectangle
 	drawRect((XMAX>>1) - PID_RECTW, (YMAX>>2) - PID_RECTH, (XMAX>>1) + PID_RECTW, (YMAX>>2) + PID_RECTH, color);
 	printStr((XMAX>>1) - FONT_SX, (YMAX>>2) - (PID_RECTH >> 1) - (FONT_SY>>1), "Kp", 2, color);
-	printFixpDec((XMAX>>1) - PID_RECTW + FONT_SX, (YMAX>>2) + (PID_RECTH >> 1) - (FONT_SY>>1), Kp, color);
+	printPIDGain((XMAX>>1) - PID_RECTW + FONT_SX, (YMAX>>2) + (PID_RECTH >> 1) - (FONT_SY>>1), &Kp_int, &Kp_dec, color);
 
 	// Draw KI rectangle
 	drawRect((XMAX>>1) - PID_RECTW, (YMAX>>1) - PID_RECTH, (XMAX>>1) + PID_RECTW, (YMAX>>1) + PID_RECTH, color);
 	printStr((XMAX>>1) - FONT_SX, (YMAX>>1) - (PID_RECTH >> 1) - (FONT_SY>>1), "Ki", 2, color);
-	printFixpDec((XMAX>>1) - PID_RECTW + FONT_SX, (YMAX>>1) + (PID_RECTH >> 1) - (FONT_SY>>1), Ki, color);
+	printPIDGain((XMAX>>1) - PID_RECTW + FONT_SX, (YMAX>>1) + (PID_RECTH >> 1) - (FONT_SY>>1), &Ki_int, &Ki_dec, color);
 
 	// Draw KD rectangle
 	drawRect((XMAX>>1) - PID_RECTW, (YMAX>>1) + (YMAX>>2) - PID_RECTH, (XMAX>>1) + PID_RECTW, (YMAX>>1) + (YMAX>>2) + PID_RECTH, color);
 	printStr((XMAX>>1) - FONT_SX, (YMAX>>1) + (YMAX>>2) - (PID_RECTH >> 1) - (FONT_SY>>1), "Kd", 2, color);
-	printFixpDec((XMAX>>1) - PID_RECTW + FONT_SX, (YMAX>>1) + (YMAX>>2) + (PID_RECTH >> 1) - (FONT_SY>>1), Kd, color);
+	printPIDGain((XMAX>>1) - PID_RECTW + FONT_SX, (YMAX>>1) + (YMAX>>2) + (PID_RECTH >> 1) - (FONT_SY>>1), &Kd_int, &Kd_dec, color);
 
 	// Draw potentiometer value
 	fillRect(20, 20, 20+8*5, 28, COLOR_BG);
@@ -130,19 +138,19 @@ void drawPIDMain(uint16_t color) {
 void drawPIDKP(uint16_t color) {
 	drawNumericsScreen(color);
 	fillRect(20, 20, 14*8, 8, COLOR_BG);
-	printFixpDec(20, 20, Kp, color);
+	printPIDGain(20, 20, &Kp_int, &Kp_dec, color);
 }
 
 void drawPIDKI(uint16_t color) {
 	drawNumericsScreen(color);
 	fillRect(20, 20, 14*8, 8, COLOR_BG);
-	printFixpDec(20, 20, Ki, color);
+	printPIDGain(20, 20, &Ki_int, &Ki_dec, color);
 }
 
 void drawPIDKD(uint16_t color) {
 	drawNumericsScreen(color);
 	fillRect(20, 20, 14*8, 8, COLOR_BG);
-	printFixpDec(20, 20, Kd, color);
+	printPIDGain(20, 20, &Kd_int, &Kd_dec, color);
 }
 
 void drawPIDHead(uint16_t color) {
@@ -150,6 +158,9 @@ void drawPIDHead(uint16_t color) {
 	fillRect(20, 20, 14*8, 8, COLOR_BG);
 	printFixpDec(20, 20, head, color);
 }
+/************************************** Drawing methods ***************************************/
+
+
 
 // Function to interpret if a button has been pressed
 void pidButtons(uint16_t xp, uint16_t yp) {
@@ -181,15 +192,15 @@ void pidButtons(uint16_t xp, uint16_t yp) {
 			break;
 		case PID_KP:
 			// Numerical input for KP
-			readNumericsScreen(xp, yp, &Kp);
+			readNumericsScreen(xp, yp, &Kp_int, &Kp_dec, &Kp_scl);
 			break;
 		case PID_KI:
 			// Numerical input for KI
-			readNumericsScreen(xp, yp, &Ki);
+			readNumericsScreen(xp, yp, &Ki_int, &Ki_dec, &Ki_scl);
 			break;
 		case PID_KD:
 			// Numerical input for KD
-			readNumericsScreen(xp, yp, &Kd);
+			readNumericsScreen(xp, yp, &Kd_int, &Kd_dec, &Kd_scl);
 			break;
 		case PID_HEAD:
 			// Numerical input for heading
@@ -200,10 +211,49 @@ void pidButtons(uint16_t xp, uint16_t yp) {
 }
 
 
-void readNumericsScreen(uint16_t xp, uint16_t yp, volatile int32_t* k) {
+//void readNumericsScreen(uint16_t xp, uint16_t yp, volatile int32_t* k) {
+void readNumericsScreen(uint16_t xp, uint16_t yp, int16_t* integerpart, int16_t* decimalpart, uint16_t* scl) {
 	uint8_t inc = 0;
-	int32_t tempInt = 0, tempDec = 0;
+	int32_t tempInt = 0;
+	uint16_t tempDec = 0, tempscl = *scl;
 
+	inc = checkNumerics(xp, yp);
+	if(inc < 10) {
+		if(decOn) {
+			tempDec = *decimalpart;
+			tempDec *= 10;
+			tempDec += inc;
+			tempscl *= 10;
+
+			if(tempDec <= 32767 && tempDec >= 0) {
+				*decimalpart = tempDec;
+				*scl = tempscl;
+			}
+
+		} else {
+			tempInt = *integerpart;
+			tempInt *= 10;
+			tempInt += sign*inc;
+
+			if(tempInt <= 32767 && tempInt >= -32767) {
+				*integerpart = tempInt;
+			}
+		}
+
+	} else if(inc == 10) {
+		*decimalpart = 0;
+		*integerpart = 0;
+		*scl = 1;
+	} else if(inc == 11) {
+		gotoState(PID_MAIN);
+	} else if(inc == 12) {
+		decOn = !decOn;
+	} else if(inc == 13) {
+		*integerpart = -1 * (*integerpart); //Flip first bit (sign bit)
+		sign *= -1;
+	}
+
+/********* ALTERED TO USE TWO VARIABLES TO HOLD FIXPOINT
 	inc = checkNumerics(xp, yp);
 	if(inc < 10) {
 		if(decOn) {
@@ -238,6 +288,7 @@ void readNumericsScreen(uint16_t xp, uint16_t yp, volatile int32_t* k) {
 		*k = ~(*k) + 1; //Flip first bit (sign bit)
 		sign *= -1;
 	}
+*/
 }
 
 void readUintScreen(uint16_t xp, uint16_t yp, uint16_t* k) {
@@ -286,6 +337,8 @@ void meanPos(void) {
 
 // Function to calculate the error (min (|A|, |B|, |C|))
 void errCalc(void) {
+	
+
 	if(update) {
 		dest = head;
 	}
@@ -306,8 +359,13 @@ void errCalc(void) {
 		err = pos - (dest - 1023);
 	}
 
-	integrerr += err;
-	deriverr -= err;
+	if(!(integrerr > 2000000) && (Ki_int != 0 || Ki_dec != 0)) {
+		integrerr += err;
+	} else if (Ki_int == 0 && Ki_dec == 0) {
+		integrerr = 0;
+	}
+	deriverr = err - preverr;
+	preverr = err;
 }
 
 // Simple heading adjustment
@@ -331,26 +389,12 @@ void adjustHeading(void) {
 	// deriverr is current err - previous err
 	// dt is execution time of loop / how often outputs are sent
 	errCalc();
-	int32_t out = Kp * err + ((Ki * integrerr) / dtinv) + ((Kd * deriverr) * (dtinv>>4));
-/*
-	if(out > 0) {
-		// Turn counter-clockwise
-		pidCh1Write(0);
-		if(out > 255000) {
-			pidCh2Write(255);
-		} else {
-			pidCh2Write(out/1000);
-		}
-		
-	} else if(out < 0) {
-		pidCh2Write(0);
-		if(out < -255000) {
-			pidCh1Write(255);
-		} else {
-			pidCh1Write(-1*out/1000);
-		}
-	}
-*/
+	
+	int32_t outint = ((int32_t) Ki_int * integrerr)/dtinv + Kp_int * err + (Kd_int * deriverr)*(dtinv);
+	int32_t outdec = (((int32_t) Ki_dec * integrerr) / Ki_scl) / dtinv + (Kp_dec * err) / Kp_scl + ((Kd_dec * deriverr * (dtinv)) / Kd_scl) ;
+	int32_t out = outint + outdec;
+
+
 	if(out > 0) {
 		turnLeft();
 	} else if(out < 0) {
@@ -359,17 +403,17 @@ void adjustHeading(void) {
 		stopTurn();
 	}
 
-	if(out < -255000 || out > 255000) {
+	if(out < -255 || out > 255) {
 		pidCh1Write(0);
 	} else if (out < 0) {
-		pidCh1Write(255 + out/1000);
+		pidCh1Write(255 + out);
 	} else {
-		pidCh1Write(255 - out/1000);
+		pidCh1Write(255 - out);
 	}
 
 
 	fillRect(200, 20, 64, 8, COLOR_BG);
-	printNum(200, 20, out >> 16, COLOR_FG);
+	printNum(200, 20, out, COLOR_FG);
 }
 
 void stopTurn(void) {
@@ -388,4 +432,14 @@ void turnRight(void) {
 	stopTurn();
 	// Make
 	PORTD |= (1 << PD3);
+}
+
+void printPIDGain(uint16_t xp, uint16_t yp, int16_t* integerpart, int16_t* decimalpart, uint16_t color) {
+	char buf[16];
+	itoa(*integerpart, buf, 10);
+	uint8_t len = strlen(buf);
+	buf[len] = '.';
+	itoa(*decimalpart, (buf + len + 1), 10);
+	len = strlen(buf);
+	printStr(xp, yp, buf, len, color);
 }
