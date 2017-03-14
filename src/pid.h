@@ -40,7 +40,7 @@ void drawPIDKD(uint16_t color);
 void drawPIDHead(uint16_t color);
 void pidButtons(uint16_t xp, uint16_t yp);
 //void readNumericsScreen(uint16_t xp, uint16_t yp, volatile int32_t* k);
-void readNumericsScreen(uint16_t xp, uint16_t yp, int16_t* integerpart, int16_t* decimalpart, uint16_t* scl);
+void readNumericsScreen(uint16_t xp, uint16_t yp, int16_t* integerpart, int16_t* decimalpart, uint32_t* scl);
 void readUintScreen(uint16_t xp, uint16_t yp, uint16_t* k);
 void readPos(void);
 void meanPos(void);
@@ -50,7 +50,7 @@ void adjustHeading(void);
 void stopTurn(void);
 void turnLeft(void);
 void turnRight(void);
-void printPIDGain(uint16_t xp, uint16_t yp, int16_t* integerpart, int16_t* decimalpart, uint16_t color);
+void printPIDGain(uint16_t xp, uint16_t yp, int16_t* integerpart, int16_t* decimalpart, uint32_t* scl, uint16_t color);
 /*******************************/
 
 extern volatile uint16_t potentiom;

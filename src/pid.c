@@ -18,7 +18,7 @@ uint8_t update = 1;
 
 int16_t Kp_int = 0, Ki_int = 0, Kd_int = 0;
 int16_t Kp_dec = 0, Ki_dec = 0, Kd_dec = 0;
-uint16_t Kp_scl = 1, Ki_scl = 1, Kd_scl = 1;
+uint32_t Kp_scl = 1, Ki_scl = 1, Kd_scl = 1;
 
 
 /************************************** ADC ***************************************/
@@ -109,17 +109,17 @@ void drawPIDMain(uint16_t color) {
 	// Draw KP rectangle
 	drawRect((XMAX>>1) - PID_RECTW, (YMAX>>2) - PID_RECTH, (XMAX>>1) + PID_RECTW, (YMAX>>2) + PID_RECTH, color);
 	printStr((XMAX>>1) - FONT_SX, (YMAX>>2) - (PID_RECTH >> 1) - (FONT_SY>>1), "Kp", 2, color);
-	printPIDGain((XMAX>>1) - PID_RECTW + FONT_SX, (YMAX>>2) + (PID_RECTH >> 1) - (FONT_SY>>1), &Kp_int, &Kp_dec, color);
+	printPIDGain((XMAX>>1) - PID_RECTW + FONT_SX, (YMAX>>2) + (PID_RECTH >> 1) - (FONT_SY>>1), &Kp_int, &Kp_dec, &Kp_scl, color);
 
 	// Draw KI rectangle
 	drawRect((XMAX>>1) - PID_RECTW, (YMAX>>1) - PID_RECTH, (XMAX>>1) + PID_RECTW, (YMAX>>1) + PID_RECTH, color);
 	printStr((XMAX>>1) - FONT_SX, (YMAX>>1) - (PID_RECTH >> 1) - (FONT_SY>>1), "Ki", 2, color);
-	printPIDGain((XMAX>>1) - PID_RECTW + FONT_SX, (YMAX>>1) + (PID_RECTH >> 1) - (FONT_SY>>1), &Ki_int, &Ki_dec, color);
+	printPIDGain((XMAX>>1) - PID_RECTW + FONT_SX, (YMAX>>1) + (PID_RECTH >> 1) - (FONT_SY>>1), &Ki_int, &Ki_dec, &Ki_scl, color);
 
 	// Draw KD rectangle
 	drawRect((XMAX>>1) - PID_RECTW, (YMAX>>1) + (YMAX>>2) - PID_RECTH, (XMAX>>1) + PID_RECTW, (YMAX>>1) + (YMAX>>2) + PID_RECTH, color);
 	printStr((XMAX>>1) - FONT_SX, (YMAX>>1) + (YMAX>>2) - (PID_RECTH >> 1) - (FONT_SY>>1), "Kd", 2, color);
-	printPIDGain((XMAX>>1) - PID_RECTW + FONT_SX, (YMAX>>1) + (YMAX>>2) + (PID_RECTH >> 1) - (FONT_SY>>1), &Kd_int, &Kd_dec, color);
+	printPIDGain((XMAX>>1) - PID_RECTW + FONT_SX, (YMAX>>1) + (YMAX>>2) + (PID_RECTH >> 1) - (FONT_SY>>1), &Kd_int, &Kd_dec, &Kd_scl, color);
 
 	// Draw potentiometer value
 	fillRect(20, 20, 20+8*5, 28, COLOR_BG);
@@ -132,25 +132,28 @@ void drawPIDMain(uint16_t color) {
 	//fillRect(20 + FONT_SX, (YMAX>>1) + (PID_RECTH >> 1) - (FONT_SY>>1), 20 + 8*FONT_SX, (YMAX>>1) + (PID_RECTH >> 1) - (FONT_SY>>1), COLOR_BG);
 	printNum(20 + FONT_SX, (YMAX>>1) + (PID_RECTH >> 1) - (FONT_SY>>1), head, color);
 
+	fillRect(240, 140, 48, 8, COLOR_BG);
+	printNum(240, 140, Kp_scl, COLOR_FG);
+
 	// Draw some lines to make it look better
 }
 
 void drawPIDKP(uint16_t color) {
 	drawNumericsScreen(color);
 	fillRect(20, 20, 14*8, 8, COLOR_BG);
-	printPIDGain(20, 20, &Kp_int, &Kp_dec, color);
+	printPIDGain(20, 20, &Kp_int, &Kp_dec, &Kp_scl, color);
 }
 
 void drawPIDKI(uint16_t color) {
 	drawNumericsScreen(color);
 	fillRect(20, 20, 14*8, 8, COLOR_BG);
-	printPIDGain(20, 20, &Ki_int, &Ki_dec, color);
+	printPIDGain(20, 20, &Ki_int, &Ki_dec, &Ki_scl, color);
 }
 
 void drawPIDKD(uint16_t color) {
 	drawNumericsScreen(color);
 	fillRect(20, 20, 14*8, 8, COLOR_BG);
-	printPIDGain(20, 20, &Kd_int, &Kd_dec, color);
+	printPIDGain(20, 20, &Kd_int, &Kd_dec, &Kd_scl, color);
 }
 
 void drawPIDHead(uint16_t color) {
@@ -212,7 +215,7 @@ void pidButtons(uint16_t xp, uint16_t yp) {
 
 
 //void readNumericsScreen(uint16_t xp, uint16_t yp, volatile int32_t* k) {
-void readNumericsScreen(uint16_t xp, uint16_t yp, int16_t* integerpart, int16_t* decimalpart, uint16_t* scl) {
+void readNumericsScreen(uint16_t xp, uint16_t yp, int16_t* integerpart, int16_t* decimalpart, uint32_t* scl) {
 	uint8_t inc = 0;
 	int32_t tempInt = 0;
 	uint16_t tempDec = 0, tempscl = *scl;
@@ -434,11 +437,22 @@ void turnRight(void) {
 	PORTD |= (1 << PD3);
 }
 
-void printPIDGain(uint16_t xp, uint16_t yp, int16_t* integerpart, int16_t* decimalpart, uint16_t color) {
+void printPIDGain(uint16_t xp, uint16_t yp, int16_t* integerpart, int16_t* decimalpart, uint32_t* scl, uint16_t color) {
 	char buf[16];
+//	uint16_t i, c;
 	itoa(*integerpart, buf, 10);
 	uint8_t len = strlen(buf);
 	buf[len] = '.';
+/*
+	// Attempt to print leading zeroes. This leads to everything adding a leading zero.
+	c = *scl;
+	i = 0;
+	while(c > 1) {
+		i++;
+		buf[len + i] = '0';
+		c /= 10;
+	}
+*/	
 	itoa(*decimalpart, (buf + len + 1), 10);
 	len = strlen(buf);
 	printStr(xp, yp, buf, len, color);
