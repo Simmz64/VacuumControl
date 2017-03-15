@@ -396,14 +396,14 @@ uint8_t checkOptionButton(uint16_t xp, uint16_t yp) {
 }
 
 void testNumericsScreen(uint16_t color) {
-	drawNumericsScreen(color);
+	drawNumericsScreen(color, 1);
 	fillRect(20, 20, 14*8, 8, COLOR_BG);
 	printFixpDec(20, 20, numberHolder, color);
 }
 
 
 // Function for drawing the numerics input screen
-void drawNumericsScreen(uint16_t color) {
+void drawNumericsScreen(uint16_t color, uint8_t flag) {
 	uint8_t i,j;
 
 	// Draw the buttons
@@ -430,24 +430,29 @@ void drawNumericsScreen(uint16_t color) {
 	drawRect(NUM_BTN_EDGEX + 3*NUM_BTN_W + 3*NUM_BTN_SPC, NUM_BTN_EDGEY, NUM_BTN_EDGEX + 4*NUM_BTN_W + 3*NUM_BTN_SPC, NUM_BTN_EDGEY + NUM_BTN_W, color);
 	printStr((NUM_BTN_EDGEX + 3*NUM_BTN_W + 3*NUM_BTN_SPC + (NUM_BTN_W >> 1)) - 12, 
 		NUM_BTN_EDGEY + (NUM_BTN_W>>1) - 4, s2, len2, color);
-
-	s2 = ", ";
-	len2 = strlen(s2);
-	drawRect(NUM_BTN_EDGEX + 4*NUM_BTN_W + 4*NUM_BTN_SPC, NUM_BTN_EDGEY, XMAX - NUM_BTN_EDGEX, NUM_BTN_EDGEY + NUM_BTN_W, color);
-	printStr(NUM_BTN_EDGEX + 4*NUM_BTN_W + 4*NUM_BTN_SPC + (NUM_BTN_W >> 1) - 8,
+	if(flag) {
+		s2 = ", ";
+		len2 = strlen(s2);
+		drawRect(NUM_BTN_EDGEX + 4*NUM_BTN_W + 4*NUM_BTN_SPC, NUM_BTN_EDGEY, XMAX - NUM_BTN_EDGEX, NUM_BTN_EDGEY + NUM_BTN_W, color);
+		printStr(NUM_BTN_EDGEX + 4*NUM_BTN_W + 4*NUM_BTN_SPC + (NUM_BTN_W >> 1) - 8,
 		NUM_BTN_EDGEY + (NUM_BTN_W>>1) - 4, s2, len2, color);
 
+	}
+	
 	char* s3 = "Clr";
 	uint8_t len3 = strlen(s3);
 	drawRect(NUM_BTN_EDGEX + 3*NUM_BTN_W + 3*NUM_BTN_SPC, NUM_BTN_EDGEY + NUM_BTN_W + NUM_BTN_SPC, NUM_BTN_EDGEX + 4*NUM_BTN_W + 3*NUM_BTN_SPC, NUM_BTN_EDGEY + 2*NUM_BTN_W + NUM_BTN_SPC, color);
 	printStr(NUM_BTN_EDGEX + 3*NUM_BTN_W + 3*NUM_BTN_SPC + (NUM_BTN_W >> 1) - 12, 
 		NUM_BTN_EDGEY + NUM_BTN_W + NUM_BTN_SPC + (NUM_BTN_W>>1) - 4, s3, len3, color);
 
-	s3 = "- ";
-	len3 = strlen(s3);
-	drawRect(NUM_BTN_EDGEX + 4*NUM_BTN_W + 4*NUM_BTN_SPC, NUM_BTN_EDGEY + NUM_BTN_W + NUM_BTN_SPC, XMAX - NUM_BTN_EDGEX, NUM_BTN_EDGEY + 2*NUM_BTN_W + NUM_BTN_SPC, color);
-	printStr(NUM_BTN_EDGEX + 4*NUM_BTN_W + 4*NUM_BTN_SPC + (NUM_BTN_W >> 1) - 8,
+	if(flag) {
+		s3 = "- ";
+		len3 = strlen(s3);
+		drawRect(NUM_BTN_EDGEX + 4*NUM_BTN_W + 4*NUM_BTN_SPC, NUM_BTN_EDGEY + NUM_BTN_W + NUM_BTN_SPC, XMAX - NUM_BTN_EDGEX, NUM_BTN_EDGEY + 2*NUM_BTN_W + NUM_BTN_SPC, color);
+		printStr(NUM_BTN_EDGEX + 4*NUM_BTN_W + 4*NUM_BTN_SPC + (NUM_BTN_W >> 1) - 8,
 		NUM_BTN_EDGEY + NUM_BTN_W + NUM_BTN_SPC + (NUM_BTN_W>>1) - 4, s3, len3, color);
+	}
+	
 
 	char* s4 = "Confirm";
 	uint8_t len4 = strlen(s4);

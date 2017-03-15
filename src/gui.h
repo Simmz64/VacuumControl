@@ -27,7 +27,7 @@ void checkBackButton(uint16_t xp, uint16_t yp);
 void drawOptionButton(char* text, uint16_t color);
 uint8_t checkOptionButton(uint16_t xp, uint16_t yp);
 void testNumericsScreen(uint16_t color);
-void drawNumericsScreen(uint16_t color);
+void drawNumericsScreen(uint16_t color, uint8_t flag);
 uint8_t checkNumerics(uint16_t xp, uint16_t yp);
 
 /*******************************/

@@ -139,27 +139,27 @@ void drawPIDMain(uint16_t color) {
 }
 
 void drawPIDKP(uint16_t color) {
-	drawNumericsScreen(color);
+	drawNumericsScreen(color, 1);
 	fillRect(20, 20, 14*8, 8, COLOR_BG);
 	printPIDGain(20, 20, &Kp_int, &Kp_dec, &Kp_scl, color);
 }
 
 void drawPIDKI(uint16_t color) {
-	drawNumericsScreen(color);
+	drawNumericsScreen(color, 1);
 	fillRect(20, 20, 14*8, 8, COLOR_BG);
 	printPIDGain(20, 20, &Ki_int, &Ki_dec, &Ki_scl, color);
 }
 
 void drawPIDKD(uint16_t color) {
-	drawNumericsScreen(color);
+	drawNumericsScreen(color, 1);
 	fillRect(20, 20, 14*8, 8, COLOR_BG);
 	printPIDGain(20, 20, &Kd_int, &Kd_dec, &Kd_scl, color);
 }
 
 void drawPIDHead(uint16_t color) {
-	drawNumericsScreen(color);
+	drawNumericsScreen(color, 0);
 	fillRect(20, 20, 14*8, 8, COLOR_BG);
-	printFixpDec(20, 20, head, color);
+	printNum(20, 20, head, color);
 }
 /************************************** Drawing methods ***************************************/
 
@@ -227,8 +227,8 @@ void readNumericsScreen(uint16_t xp, uint16_t yp, int16_t* integerpart, int16_t*
 			tempDec *= 10;
 			tempDec += inc;
 			tempscl *= 10;
-
-			if(tempDec <= 32767 && tempDec >= 0) {
+			// Limit to 3 decimals
+			if(tempDec < 1000 && tempDec >= 0) {
 				*decimalpart = tempDec;
 				*scl = tempscl;
 			}
@@ -294,6 +294,7 @@ void readNumericsScreen(uint16_t xp, uint16_t yp, int16_t* integerpart, int16_t*
 */
 }
 
+// Position detection for the heading numerics screen
 void readUintScreen(uint16_t xp, uint16_t yp, uint16_t* k) {
 	uint8_t inc = 0;
 	int32_t tempInt = 0;
@@ -339,6 +340,7 @@ void meanPos(void) {
 }
 
 // Function to calculate the error (min (|A|, |B|, |C|))
+// Finds the shortest path between two points, also taking into account the 1023-0 crossing
 void errCalc(void) {
 	
 
