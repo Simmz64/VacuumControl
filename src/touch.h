@@ -10,12 +10,10 @@
 #include "main.h"
 #include <util/delay.h>
 
-
-#define XP PC0
-#define YP PC1
-#define XM PC2
-#define YM PC3
-
+#define XP PC0 // ADC0
+#define YP PC1 // ADC1
+#define XM PC2 // ADC2
+#define YM PC3 // ADC3
 
 // NOTE Code assumes this is 2, for the moment
 #define NUMSAMPLES 2

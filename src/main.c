@@ -29,7 +29,7 @@ volatile uint16_t potentiom = 0;
 
 void init(void) {
 
-   // Set MOSI, SCK, PB1, PB2 as output
+   // Set MOSI, SCK, PB0, PB1, PB2 as output
    DDRB = (1<<PB5)|(1<<PB3) | (1<<PB1)|(1<<PB2)|(1<<PB0);
    DDRD = (1<<PD7)|(0 << PD6);
    PORTD = (1 << PD6);
